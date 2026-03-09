@@ -1,10 +1,59 @@
+# ─── Dependencies ─────────────────────────────────────
 node_modules/
 client/node_modules/
+
+# ─── Build Output ─────────────────────────────────────
 client/dist/
 client/public/engine/
+dist-electron/
+*.tsbuildinfo
+
+# ─── Environment ──────────────────────────────────────
 .env
+.env.local
+.env.*.local
+
+# ─── Logs ─────────────────────────────────────────────
 *.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ─── OS Files ─────────────────────────────────────────
 .DS_Store
+Thumbs.db
+Desktop.ini
+*.swp
+*.swo
+*~
+
+# ─── IDE / Editor ─────────────────────────────────────
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+.project
+.classpath
+.settings/
+
+# ─── Lock Files (regenerated on install) ──────────────
 package-lock.json
 client/package-lock.json
-.github/workflows/build-release.yml
+
+# ─── Coverage & Test ──────────────────────────────────
+coverage/
+.nyc_output/
+*.lcov
+
+# ─── Electron Build ──────────────────────────────────
+dist-electron/
+*.blockmap
+*.snap
+
+# ─── Misc ─────────────────────────────────────────────
+*.tgz
+.cache/
+.parcel-cache/
+.temp/
+.tmp/
