@@ -58,15 +58,15 @@ export default function Compliance({ scanResult, onNavigate }) {
   /* ─── Empty state ─── */
   if (!scorecard && !loading) return (
     <motion.div initial={{ opacity:0, y:20 }} animate={{ opacity:1, y:0 }} transition={{ duration:0.5 }}
-      style={{ textAlign:'center', padding:'60px 20px' }}>
+      style={{ textAlign:'center', padding:'40px 20px' }}>
       <motion.div animate={{ y:[0,-8,0] }} transition={{ duration:3, repeat:Infinity, ease:'easeInOut' }}>
-        <AuditOutlined style={{ fontSize:80, color:'#6C5CE7', filter:'drop-shadow(0 0 24px rgba(108,92,231,0.4))', marginBottom:28, display:'block' }} />
+        <AuditOutlined style={{ fontSize:60, color:'#6C5CE7', filter:'drop-shadow(0 0 16px rgba(108,92,231,0.3))', marginBottom:20, display:'block' }} />
       </motion.div>
       <Title level={3} className="gradient-text">{t('comp.empty_title')}</Title>
       <Paragraph style={{ color: colors.textSecondary, maxWidth:560, margin:'0 auto 12px', lineHeight:1.8, fontSize:14 }}>
         {t('comp.empty_desc')}
       </Paragraph>
-      <Paragraph style={{ color: colors.textDim, maxWidth:480, margin:'0 auto 32px', fontSize:12 }}>
+      <Paragraph style={{ color: colors.textDim, maxWidth:480, margin:'0 auto 24px', fontSize:12 }}>
         {t('comp.empty_sub')}
       </Paragraph>
       <Space direction="vertical" size={12}>
@@ -84,9 +84,9 @@ export default function Compliance({ scanResult, onNavigate }) {
   );
 
   if (loading) return (
-    <motion.div initial={{ opacity:0 }} animate={{ opacity:1 }} style={{ textAlign:'center', padding:'60px 20px' }}>
+    <motion.div initial={{ opacity:0 }} animate={{ opacity:1 }} style={{ textAlign:'center', padding:'40px 20px' }}>
       <motion.div animate={{ scale: [1, 1.1, 1] }} transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}>
-        <AuditOutlined style={{ fontSize: 64, color: '#6C5CE7', filter: 'drop-shadow(0 0 20px rgba(108,92,231,0.5))', display: 'block', marginBottom: 24 }} />
+        <AuditOutlined style={{ fontSize: 48, color: '#6C5CE7', filter: 'drop-shadow(0 0 16px rgba(108,92,231,0.4))', display: 'block', marginBottom: 20 }} />
       </motion.div>
       <div style={{ maxWidth: 500, margin: '0 auto' }}>
         <Text style={{ color: colors.accent, fontSize: 15, fontWeight: 600 }}>{t('comp.loading')}</Text>

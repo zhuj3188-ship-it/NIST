@@ -99,9 +99,9 @@ export default function Migration({ scanResult, onNavigate }) {
   );
 
   if (loading) return (
-    <motion.div initial={{ opacity:0 }} animate={{ opacity:1 }} style={{ textAlign:'center', padding:'60px 20px' }}>
+    <motion.div initial={{ opacity:0 }} animate={{ opacity:1 }} style={{ textAlign:'center', padding:'40px 20px' }}>
       <motion.div animate={{ scale: [1, 1.1, 1] }} transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}>
-        <RocketOutlined style={{ fontSize: 64, color: '#6C5CE7', filter: 'drop-shadow(0 0 20px rgba(108,92,231,0.5))', display: 'block', marginBottom: 24 }} />
+        <RocketOutlined style={{ fontSize: 48, color: '#6C5CE7', filter: 'drop-shadow(0 0 16px rgba(108,92,231,0.4))', display: 'block', marginBottom: 20 }} />
       </motion.div>
       <div style={{ maxWidth: 500, margin: '0 auto' }}>
         <Text style={{ color: colors.accent, fontSize: 15, fontWeight: 600 }}>{t('migrate.generating')}</Text>

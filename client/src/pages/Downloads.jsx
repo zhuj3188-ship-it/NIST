@@ -264,8 +264,9 @@ export default function DownloadsPage() {
                 onClick={() => { setSelectedPlatform(key); setSelectedArch(cfg.archOptions[0].value); }}
                 style={{
                   borderRadius: 12, cursor: 'pointer', textAlign: 'center',
-                  background: selectedPlatform === key ? (isDark ? 'rgba(108,92,231,0.12)' : 'rgba(108,92,231,0.06)') : cs.bgCard,
+                  background: selectedPlatform === key ? (isDark ? 'rgba(108,92,231,0.12)' : 'rgba(108,92,231,0.04)') : cs.bgCard,
                   border: selectedPlatform === key ? '2px solid rgba(108,92,231,0.5)' : `1px solid ${cs.border}`,
+                  boxShadow: selectedPlatform === key ? (isDark ? '0 0 0 1px rgba(108,92,231,0.2)' : 'none') : 'none',
                   transition: 'all 0.3s ease',
                 }}
                 bodyStyle={{ padding: '16px 12px' }}
