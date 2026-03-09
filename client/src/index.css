@@ -199,10 +199,10 @@ html, body, #root {
 }
 
 /* ─── Sidebar Footer ─── */
-.sidebar-footer { text-align: center; padding: 0 12px 16px; }
+.sidebar-footer { text-align: center; padding: 0 14px 16px; }
 .sidebar-footer__divider { height: 1px; background: var(--qs-border); margin-bottom: 10px; }
-.sidebar-footer__standards { color: var(--qs-accent); font-size: 9px; font-weight: 600; letter-spacing: 0.5px; display: flex; align-items: center; justify-content: center; }
-.sidebar-footer__copy { color: var(--qs-text-dim); font-size: 8px; margin-top: 4px; }
+.sidebar-footer__standards { color: var(--qs-accent); font-size: 10px; font-weight: 600; letter-spacing: 0.3px; display: flex; align-items: center; justify-content: center; }
+.sidebar-footer__copy { color: var(--qs-text-dim); font-size: 9px; margin-top: 4px; }
 
 /* ─── Header ─── */
 .header-badges {
@@ -312,11 +312,12 @@ html, body, #root {
 .ant-pro-sider .ant-menu-item {
   margin-block: 1px !important;
   padding-block: 0 !important;
-  height: 34px !important;
-  line-height: 34px !important;
+  height: 36px !important;
+  line-height: 36px !important;
   border-radius: 0 !important;
   border-left: 3px solid transparent;
   transition: background 0.15s ease, border-color 0.15s ease;
+  font-size: 13px !important;
 }
 
 /* Dark mode: hover */
@@ -337,6 +338,7 @@ html, body, #root {
 [data-theme="light"] .ant-pro-sider .ant-menu-item-selected {
   background: rgba(108,92,231,0.06) !important;
   border-left-color: #6C5CE7 !important;
+  font-weight: 600 !important;
 }
 
 /* ─── Header: clean, no shadow ─── */

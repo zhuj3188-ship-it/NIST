@@ -206,7 +206,7 @@ export default function App() {
             collapsed={collapsed}
             onCollapse={setCollapsed}
             collapsedButtonRender={false}
-            siderWidth={148}
+            siderWidth={186}
             token={layoutToken}
 
             actionsRender={() => [

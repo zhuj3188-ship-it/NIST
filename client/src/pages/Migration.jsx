@@ -158,6 +158,7 @@ export default function Migration({ scanResult, onNavigate }) {
       <motion.div variants={fadeUp}>
         <ProCard title={<span><ClockCircleOutlined style={{ marginRight:8, color:'#6C5CE7' }} />{isZh ? '分阶段迁移计划' : 'Phased Migration Plan'}</span>}
           className="qs-card" headerBorderless>
+          {report.phases?.length > 0 ? (
           <Steps direction="vertical" size="small" current={-1}
             items={report.phases?.map((ph,i) => ({
               title: <span style={{ color: colors.text, fontWeight:600 }}>Phase {ph.phase}: {ph.name} <Tag style={{ fontSize:10, borderRadius:4 }} color={i===0?'red':i===1?'orange':'blue'}>{ph.timeline}</Tag></span>,
@@ -180,6 +181,12 @@ export default function Migration({ scanResult, onNavigate }) {
               icon: <Badge count={ph.items?.length||0} style={{ backgroundColor: i===0?'#ff4757':i===1?'#ff6b35':i===2?'#ffa502':'#6C5CE7' }} />,
               status: 'process',
             }))} />
+          ) : (
+            <div style={{ textAlign:'center', padding:'24px 0', color: colors.textDim }}>
+              <ClockCircleOutlined style={{ fontSize:28, marginBottom:8, display:'block', opacity:0.4 }} />
+              <Text style={{ color: colors.textDim, fontSize:12 }}>{isZh ? '迁移计划数据正在分析中...' : 'Migration plan data is being analyzed...'}</Text>
+            </div>
+          )}
         </ProCard>
       </motion.div>
 
@@ -202,6 +209,7 @@ export default function Migration({ scanResult, onNavigate }) {
       <motion.div variants={fadeUp}>
         <ProCard title={<span><CodeOutlined style={{ marginRight:8, color:'#6C5CE7' }} />{isZh ? '代码迁移' : 'Code Migration'} — <Tag color={STRAT_COLORS[strategy]} style={{ borderRadius:4 }}>{STRAT_LABELS[strategy]}</Tag></span>}
           className="qs-card" headerBorderless>
+          {report.by_algorithm && Object.keys(report.by_algorithm).length > 0 ? (
           <Tabs tabPosition="left" style={{ minHeight:400 }}
             items={Object.entries(report.by_algorithm||{}).map(([algo,plans])=>({
               key:algo,
@@ -237,6 +245,13 @@ export default function Migration({ scanResult, onNavigate }) {
                 );
               }),
             }))} />
+          ) : (
+            <div style={{ textAlign:'center', padding:'32px 0', color: colors.textDim }}>
+              <CodeOutlined style={{ fontSize:32, marginBottom:10, display:'block', opacity:0.4 }} />
+              <Text style={{ color: colors.textDim, fontSize:13, display:'block' }}>{isZh ? '代码迁移 Diff 正在生成中...' : 'Code migration diffs are being generated...'}</Text>
+              <Text style={{ color: colors.textDim, fontSize:11, display:'block', marginTop:4 }}>{isZh ? '完成后将显示每个算法的前后代码对比' : 'Once complete, before/after code diffs will appear for each algorithm'}</Text>
+            </div>
+          )}
         </ProCard>
       </motion.div>
 

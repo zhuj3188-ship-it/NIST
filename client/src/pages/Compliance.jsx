@@ -164,8 +164,8 @@ export default function Compliance({ scanResult, onNavigate }) {
       </motion.div>
 
       {/* ═══ Risk Summary ═══ */}
-      {scorecard?.risk_summary && (
-        <motion.div variants={fadeUp}>
+      <motion.div variants={fadeUp}>
+        {scorecard?.risk_summary ? (
           <StatisticCard.Group direction="row" style={{ borderRadius:12, overflow:'hidden' }}>
             <StatisticCard statistic={{ title:'CRITICAL', value:scorecard.risk_summary.critical, valueStyle:{color:'#ff4757'}, icon:<CloseCircleOutlined style={{color:'#ff4757'}} /> }} />
             <Divider type="vertical" />
@@ -175,8 +175,18 @@ export default function Compliance({ scanResult, onNavigate }) {
             <Divider type="vertical" />
             <StatisticCard statistic={{ title:'LOW', value:scorecard.risk_summary.low, valueStyle:{color:'#2ed573'}, icon:<CheckCircleOutlined style={{color:'#2ed573'}} /> }} />
           </StatisticCard.Group>
-        </motion.div>
-      )}
+        ) : (
+          <StatisticCard.Group direction="row" style={{ borderRadius:12, overflow:'hidden' }}>
+            <StatisticCard statistic={{ title:'CRITICAL', value:'-', icon:<CloseCircleOutlined style={{color:'#ff4757'}} /> }} />
+            <Divider type="vertical" />
+            <StatisticCard statistic={{ title:'HIGH', value:'-', icon:<WarningOutlined style={{color:'#ff6b35'}} /> }} />
+            <Divider type="vertical" />
+            <StatisticCard statistic={{ title:'MEDIUM', value:'-', icon:<ExclamationCircleOutlined style={{color:'#ffa502'}} /> }} />
+            <Divider type="vertical" />
+            <StatisticCard statistic={{ title:'LOW', value:'-', icon:<CheckCircleOutlined style={{color:'#2ed573'}} /> }} />
+          </StatisticCard.Group>
+        )}
+      </motion.div>
 
       {/* ═══ Radar + Recommendations ═══ */}
       <motion.div variants={fadeUp}>
@@ -217,13 +227,13 @@ export default function Compliance({ scanResult, onNavigate }) {
       </motion.div>
 
       {/* ═══ Frameworks ═══ */}
-      {compReport && (
-        <motion.div variants={fadeUp}>
-          <ProCard title={<><AuditOutlined style={{ marginRight:8, color:'#6C5CE7' }} />{isZh ? '合规框架映射 — NIST IR 8547 · CNSA 2.0 · NCSC · EU PQC' : 'Compliance Framework Mapping — NIST IR 8547 · CNSA 2.0 · NCSC · EU PQC'}</>}
-            extra={<Tag color={RC[compReport.overall_status]} style={{ fontSize:12, padding:'2px 14px', fontWeight:600, borderRadius:20 }}>{compReport.overall_status?.replace(/_/g,' ')}</Tag>}
-            className="qs-card" headerBorderless>
+      <motion.div variants={fadeUp}>
+        <ProCard title={<><AuditOutlined style={{ marginRight:8, color:'#6C5CE7' }} />{isZh ? '合规框架映射 — NIST IR 8547 · CNSA 2.0 · NCSC · EU PQC' : 'Compliance Framework Mapping — NIST IR 8547 · CNSA 2.0 · NCSC · EU PQC'}</>}
+          extra={compReport?.overall_status && <Tag color={RC[compReport.overall_status]} style={{ fontSize:12, padding:'2px 14px', fontWeight:600, borderRadius:20 }}>{compReport.overall_status?.replace(/_/g,' ')}</Tag>}
+          className="qs-card" headerBorderless>
+          {compReport?.frameworks?.length > 0 ? (
             <ProCard gutter={[12,12]} ghost wrap>
-              {compReport.frameworks?.map((fw,i) => (
+              {compReport.frameworks.map((fw,i) => (
                 <ProCard key={i} colSpan={12} style={{
                   background:'var(--qs-inner-card-bg)', borderRadius:12,
                   border:`1px solid ${['COMPLIANT','ON_TRACK'].includes(fw.status)?'rgba(46,213,115,0.2)':['NON_COMPLIANT','AT_RISK'].includes(fw.status)?'rgba(255,71,87,0.2)':'rgba(255,165,2,0.2)'}`,
@@ -248,9 +258,14 @@ export default function Compliance({ scanResult, onNavigate }) {
                 </ProCard>
               ))}
             </ProCard>
-          </ProCard>
-        </motion.div>
-      )}
+          ) : (
+            <div style={{ textAlign:'center', padding:'24px 0', color: colors.textDim }}>
+              <AuditOutlined style={{ fontSize:28, marginBottom:8, display:'block', opacity:0.4 }} />
+              <Text style={{ color: colors.textDim, fontSize:12 }}>{isZh ? '合规框架数据加载中...' : 'Compliance framework data loading...'}</Text>
+            </div>
+          )}
+        </ProCard>
+      </motion.div>
 
       {/* ═══ CBOM & SARIF ═══ */}
       <motion.div variants={fadeUp}>
