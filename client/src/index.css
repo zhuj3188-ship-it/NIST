@@ -359,14 +359,22 @@ html, body, #root {
   z-index: 1;
 }
 [data-theme="light"] .header-badges {
-  background: rgba(108, 92, 231, 0.04) !important;
-  border: 1px solid rgba(108, 92, 231, 0.10) !important;
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
 }
 [data-theme="light"] .header-badge-text {
-  color: #555 !important;
+  color: #666 !important;
+  font-size: 11px;
 }
 [data-theme="light"] .header-badge-sep {
-  color: rgba(108,92,231,0.25) !important;
+  color: #ccc !important;
+}
+
+/* ─── Align header content area with page content area ─── */
+[data-theme="light"] .ant-pro-global-header-header-actions {
+  box-shadow: none !important;
 }
 
 /* ─── Sidebar footer light mode ─── */
