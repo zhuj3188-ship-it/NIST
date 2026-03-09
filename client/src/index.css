@@ -2,10 +2,12 @@
 
 /* ══════════════════════════════════════
    QuantumShield — Enterprise Desktop Theme
-   Premium dark glassmorphism UI system
+   Light / Dark dual-theme glassmorphism UI
    ══════════════════════════════════════ */
 
-:root {
+/* ─── Dark Theme (default) ─── */
+:root,
+[data-theme="dark"] {
   --qs-bg-base:      #060612;
   --qs-bg-primary:   #080818;
   --qs-bg-secondary: #0a0a20;
@@ -35,6 +37,69 @@
   --qs-shadow-lg:    0 8px 48px rgba(0, 0, 0, 0.5), 0 2px 8px rgba(0, 0, 0, 0.3);
   --qs-shadow-glow:  0 4px 32px var(--qs-accent-glow), 0 0 0 1px rgba(108,92,231,0.15);
   --qs-transition:   all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --qs-code-bg:      #060614;
+  --qs-hero-gradient: linear-gradient(135deg, #080828 0%, #0e0e38 25%, #141450 50%, #0c2d5a 100%);
+  --qs-statusbar-bg: linear-gradient(180deg, rgba(10,10,30,0.95) 0%, rgba(6,6,18,0.98) 100%);
+  --qs-inner-card-bg: #060614;
+  --qs-inner-card-text: #ddd;
+  --qs-inner-card-text2: #ccc;
+  --qs-inner-card-text3: #bbb;
+  --qs-inner-card-text4: #999;
+  --qs-inner-card-text-label: #7a7a9e;
+  --qs-inner-card-text-dim: #555577;
+  --qs-inner-card-text-very-dim: #4a4a6e;
+  --qs-inner-row-bg: #0a0a20;
+  --qs-code-preview-bg: #060612;
+  --qs-code-preview-text: #a29bfe;
+  --qs-nav-theme:    realDark;
+}
+
+/* ─── Light Theme ─── */
+[data-theme="light"] {
+  --qs-bg-base:      #f0f0f5;
+  --qs-bg-primary:   #f5f5fa;
+  --qs-bg-secondary: #eeeef5;
+  --qs-bg-card:      #ffffff;
+  --qs-bg-elevated:  #ffffff;
+  --qs-bg-surface:   #f8f8fc;
+  --qs-border:       #e0e0ec;
+  --qs-border-light: #d0d0dc;
+  --qs-accent:       #6C5CE7;
+  --qs-accent-light: #8b7cf0;
+  --qs-accent-glow:  rgba(108, 92, 231, 0.15);
+  --qs-accent-subtle:rgba(108, 92, 231, 0.05);
+  --qs-critical:     #e84057;
+  --qs-high:         #e86030;
+  --qs-medium:       #e09000;
+  --qs-low:          #28b462;
+  --qs-safe:         #1e80dd;
+  --qs-text-primary: #1a1a2e;
+  --qs-text-secondary:#555570;
+  --qs-text-dim:     #888898;
+  --qs-glass:        rgba(255, 255, 255, 0.75);
+  --qs-glass-border: rgba(108, 92, 231, 0.1);
+  --qs-radius:       12px;
+  --qs-radius-sm:    8px;
+  --qs-radius-lg:    16px;
+  --qs-shadow:       0 2px 12px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.04);
+  --qs-shadow-lg:    0 4px 24px rgba(0, 0, 0, 0.08), 0 2px 6px rgba(0, 0, 0, 0.04);
+  --qs-shadow-glow:  0 4px 20px rgba(108,92,231,0.12), 0 0 0 1px rgba(108,92,231,0.1);
+  --qs-transition:   all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --qs-code-bg:      #f6f6fc;
+  --qs-hero-gradient: linear-gradient(135deg, #eef0ff 0%, #e8ecff 25%, #dde2ff 50%, #d5e0f8 100%);
+  --qs-statusbar-bg: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(245,245,250,0.98));
+  --qs-inner-card-bg: #f8f8fc;
+  --qs-inner-card-text: #2a2a3e;
+  --qs-inner-card-text2: #333348;
+  --qs-inner-card-text3: #444460;
+  --qs-inner-card-text4: #666680;
+  --qs-inner-card-text-label: #666680;
+  --qs-inner-card-text-dim: #888898;
+  --qs-inner-card-text-very-dim: #999;
+  --qs-inner-row-bg: #f0f0f8;
+  --qs-code-preview-bg: #f6f6fc;
+  --qs-code-preview-text: #5a4ad0;
+  --qs-nav-theme:    light;
 }
 
 * { box-sizing: border-box; }
@@ -67,22 +132,23 @@ html, body, #root {
 
 /* ─── Hero Gradient Background ─── */
 .hero-gradient {
-  background: linear-gradient(135deg, #080828 0%, #0e0e38 25%, #141450 50%, #0c2d5a 100%) !important;
+  background: var(--qs-hero-gradient) !important;
   border: 1px solid var(--qs-border) !important;
-  position: relative; overflow: hidden;
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
 }
 .hero-gradient::before {
   content: ''; position: absolute; inset: 0;
-  background: radial-gradient(ellipse at 75% 15%, rgba(108,92,231,0.12) 0%, transparent 55%),
-              radial-gradient(ellipse at 25% 80%, rgba(30,144,255,0.06) 0%, transparent 50%);
+  background: radial-gradient(ellipse at 75% 15%, rgba(108,92,231,0.08) 0%, transparent 55%),
+              radial-gradient(ellipse at 25% 80%, rgba(30,144,255,0.04) 0%, transparent 50%);
   pointer-events: none; z-index: 0;
 }
 .hero-gradient::after {
-  content: ''; position: absolute; top: -50%; right: -30%; width: 80%; height: 200%;
-  background: conic-gradient(from 180deg at 50% 50%, transparent 0deg, rgba(108,92,231,0.03) 120deg, transparent 360deg);
-  animation: heroRotate 30s linear infinite; pointer-events: none; z-index: 0;
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(circle at 80% 20%, rgba(108,92,231,0.06) 0%, transparent 50%);
+  pointer-events: none; z-index: 0;
 }
-@keyframes heroRotate { 100% { transform: rotate(360deg); } }
 
 /* ─── Glass Card ─── */
 .glass-card {
@@ -150,7 +216,7 @@ html, body, #root {
   padding: 10px 12px !important;
 }
 .quantum-table .ant-table-tbody > tr > td {
-  border-bottom: 1px solid rgba(26,26,66,0.6) !important;
+  border-bottom: 1px solid var(--qs-border) !important;
   padding: 8px 12px !important;
   font-size: 12px;
 }
@@ -163,7 +229,7 @@ html, body, #root {
 
 /* ─── Code Block ─── */
 .code-block {
-  background: #060614; border: 1px solid var(--qs-border);
+  background: var(--qs-code-bg); border: 1px solid var(--qs-border);
   border-radius: var(--qs-radius-sm);
   font-family: 'JetBrains Mono', 'Cascadia Code', monospace;
   font-size: 12px; padding: 12px 16px; overflow-x: auto;
@@ -177,7 +243,7 @@ html, body, #root {
   justify-content: center; align-items: center;
   backdrop-filter: blur(8px);
 }
-.risk-matrix-cell:hover { transform: scale(1.05); box-shadow: 0 4px 24px rgba(0,0,0,0.4); }
+.risk-matrix-cell:hover { transform: scale(1.05); box-shadow: var(--qs-shadow); }
 
 /* ─── Sidebar ─── */
 .ant-pro-sider { border-right: 1px solid var(--qs-border) !important; }
@@ -225,18 +291,23 @@ html, body, #root {
   position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;
   height: 26px; display: flex; justify-content: space-between; align-items: center;
   padding: 0 16px;
-  background: linear-gradient(180deg, rgba(10,10,30,0.95) 0%, rgba(6,6,18,0.98) 100%);
+  background: var(--qs-statusbar-bg, linear-gradient(180deg, rgba(10,10,30,0.95) 0%, rgba(6,6,18,0.98) 100%));
   border-top: 1px solid var(--qs-border);
   backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
   font-size: 10px; color: var(--qs-text-dim);
+  transition: background 0.3s, color 0.3s;
 }
 .desktop-status-bar__left,
 .desktop-status-bar__right { display: flex; align-items: center; gap: 4px; }
-.desktop-status-bar__sep { color: rgba(255,255,255,0.08); margin: 0 6px; }
+.desktop-status-bar__sep { color: var(--qs-text-dim); opacity: 0.3; margin: 0 5px; }
 
 /* ─── ProLayout overrides ─── */
-.ant-pro-layout-content { padding-bottom: 36px !important; }
-.ant-pro-page-container { background: transparent !important; }
+.ant-pro-layout-content { padding-bottom: 32px !important; }
+.ant-pro-page-container { background: transparent !important; padding: 0 !important; }
+.ant-page-header { padding: 0 !important; }
+.ant-pro-page-container-children-content { padding: 0 !important; }
+.ant-pro-layout .ant-layout-content { padding: 8px 12px 32px !important; }
+.ant-pro-sider .ant-layout-sider-children { padding-top: 0 !important; }
 
 /* ─── StatisticCard Group ─── */
 .ant-pro-card-statistic { padding: 0 !important; }
@@ -288,11 +359,15 @@ html, body, #root {
 }
 
 /* ─── Glow Card ─── */
-.glow-card { position: relative; overflow: hidden; }
+.glow-card {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
 .glow-card::before {
-  content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
-  background: conic-gradient(from 0deg, transparent, var(--qs-accent-glow), transparent 30%);
-  animation: heroRotate 8s linear infinite; z-index: -1;
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(ellipse at 50% 0%, rgba(108,92,231,0.08) 0%, transparent 60%);
+  pointer-events: none; z-index: 0;
 }
 
 /* ─── Button styles ─── */
@@ -322,7 +397,7 @@ html, body, #root {
   border-radius: var(--qs-radius-sm) !important;
   box-shadow: var(--qs-shadow-lg) !important;
 }
-.g2-tooltip-list-item { color: #ddd !important; }
+.g2-tooltip-list-item { color: var(--qs-text-primary) !important; }
 
 /* ─── Badge Glow ─── */
 .badge-critical .ant-badge-count { box-shadow: 0 0 8px var(--qs-critical); }
@@ -427,22 +502,48 @@ html, body, #root {
   animation: ant-progress-active 2.4s cubic-bezier(0.23, 1, 0.32, 1) infinite !important;
 }
 
-/* ─── Steps dark override ─── */
+/* ─── Steps override ─── */
 .ant-steps .ant-steps-item-description { color: var(--qs-text-dim) !important; font-size: 11px !important; }
 .ant-steps .ant-steps-item-title { color: var(--qs-text-secondary) !important; font-size: 12px !important; }
-.ant-steps .ant-steps-item-process .ant-steps-item-title { color: #fff !important; }
+.ant-steps .ant-steps-item-process .ant-steps-item-title { color: var(--qs-text-primary) !important; }
 
-/* ─── Notification dark override ─── */
+/* ─── Notification override ─── */
 .ant-notification-notice {
   background: var(--qs-bg-elevated) !important;
   border: 1px solid var(--qs-border) !important;
   border-radius: var(--qs-radius) !important;
 }
-.ant-notification-notice-message { color: #fff !important; }
+.ant-notification-notice-message { color: var(--qs-text-primary) !important; }
 .ant-notification-notice-description { color: var(--qs-text-secondary) !important; }
 
-/* ─── Liquid chart container fix ─── */
-.ant-pro-card-body canvas { border-radius: 50%; }
+/* ─── Light theme specific overrides ─── */
+[data-theme="light"] .hero-gradient { border-color: var(--qs-border) !important; }
+[data-theme="light"] .glass-card { background: rgba(255,255,255,0.85) !important; }
+[data-theme="light"] .metric-card { background: linear-gradient(145deg, #ffffff, #f5f5fa) !important; border-color: var(--qs-border) !important; }
+[data-theme="light"] .qs-card { background: #ffffff !important; border-color: var(--qs-border) !important; }
+[data-theme="light"] .desktop-status-bar { border-top: 1px solid var(--qs-border); }
+[data-theme="light"] .code-block { background: var(--qs-code-bg); border-color: var(--qs-border); }
+[data-theme="light"] .quantum-table .ant-table-thead > tr > th { background: #fafafe !important; border-bottom-color: var(--qs-border) !important; color: var(--qs-text-secondary) !important; }
+[data-theme="light"] .quantum-table .ant-table-tbody > tr > td { border-bottom-color: var(--qs-border) !important; }
+[data-theme="light"] .quantum-table .ant-table-tbody > tr:hover > td { background: #f5f5ff !important; }
+[data-theme="light"] .ant-segmented { background: #f0f0f5 !important; }
+[data-theme="light"] .ant-segmented-item-selected { background: var(--qs-accent) !important; color: #fff !important; }
+[data-theme="light"] .ant-upload-drag { background: #fafafe !important; border-color: var(--qs-border) !important; }
+[data-theme="light"] .ant-upload-drag:hover { border-color: var(--qs-accent) !important; }
+[data-theme="light"] .qs-alert-critical { background: rgba(232,64,87,0.04) !important; border-color: rgba(232,64,87,0.15) !important; }
+[data-theme="light"] .qs-alert-info { background: rgba(108,92,231,0.04) !important; border-color: rgba(108,92,231,0.12) !important; }
+[data-theme="light"] .gradient-text { background: linear-gradient(135deg, #5a4ad0, #7c6cf0, #4a8fd0); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+[data-theme="light"] .header-badges { background: rgba(108,92,231,0.04); border-color: rgba(108,92,231,0.1); }
+[data-theme="light"] .sidebar-menu-item:hover { background: rgba(108,92,231,0.04); }
+[data-theme="light"] .sidebar-menu-item--active { background: rgba(108,92,231,0.08) !important; }
+[data-theme="light"] .sidebar-footer__divider { background: var(--qs-border); }
+[data-theme="light"] .ant-pro-sider { border-right-color: var(--qs-border) !important; }
+[data-theme="light"] ::-webkit-scrollbar-thumb { background: #ccc; }
+[data-theme="light"] ::-webkit-scrollbar-thumb:hover { background: var(--qs-accent); }
+[data-theme="light"] .diff-viewer-wrapper { border-color: var(--qs-border); }
+[data-theme="light"] .ant-notification-notice { background: #fff !important; border-color: var(--qs-border) !important; }
+[data-theme="light"] .ant-notification-notice-message { color: #1a1a2e !important; }
+[data-theme="light"] .ant-notification-notice-description { color: var(--qs-text-secondary) !important; }
 
 /* ─── Electron: macOS traffic light offset ─── */
 @supports (-webkit-app-region: drag) {

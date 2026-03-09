@@ -1,17 +1,18 @@
 import React, { useState, useCallback, useEffect, useMemo } from 'react';
-import { ConfigProvider, theme, App as AntApp, Tooltip, Badge, Dropdown, Space, Typography, Tag, message, notification } from 'antd';
+import { ConfigProvider, App as AntApp, Tooltip, Badge, Dropdown, Space, Typography, Tag, message, notification, Switch } from 'antd';
 import {
   DashboardOutlined, ScanOutlined, SwapOutlined, BookOutlined,
   AuditOutlined, ExperimentOutlined, SafetyOutlined, GithubOutlined,
   SettingOutlined, QuestionCircleOutlined, BellOutlined,
   DesktopOutlined, ThunderboltOutlined, LockOutlined, CloudOutlined,
-  ReloadOutlined, FullscreenOutlined, FullscreenExitOutlined,
+  FullscreenOutlined, FullscreenExitOutlined,
   InfoCircleOutlined, CheckCircleOutlined, DownloadOutlined,
-  CopyOutlined, AppleOutlined, WindowsOutlined, CodeOutlined,
+  CodeOutlined, TranslationOutlined, SunOutlined, MoonOutlined,
 } from '@ant-design/icons';
 import { ProLayout, PageContainer, WaterMark } from '@ant-design/pro-components';
 import { motion, AnimatePresence } from 'framer-motion';
 import zhCN from 'antd/locale/zh_CN';
+import enUS from 'antd/locale/en_US';
 import DashboardPage from './pages/Dashboard';
 import ScannerPage from './pages/Scanner';
 import MigrationPage from './pages/Migration';
@@ -20,26 +21,12 @@ import CompliancePage from './pages/Compliance';
 import DownloadsPage from './pages/Downloads';
 import CICDPage from './pages/CICD';
 import { getHealthCheck, getSystemInfo } from './lib/api';
+import { useTheme } from './contexts/ThemeContext';
+import { useI18n } from './contexts/I18nContext';
 
 const { Text } = Typography;
 
-/* ─── GitHub repository URL ─── */
 const GITHUB_URL = 'https://github.com/zhuj3188-ship-it/NIST';
-
-/* ─── Route definitions ─── */
-const routeMap = {
-  '/dashboard':  { name: '威胁仪表盘', icon: <DashboardOutlined />, shortcut: '1' },
-  '/scanner':    { name: '代码扫描器', icon: <ScanOutlined />, shortcut: '2' },
-  '/migration':  { name: '一键迁移',   icon: <SwapOutlined />, shortcut: '3' },
-  '/compliance': { name: '合规中心',   icon: <AuditOutlined />, shortcut: '4' },
-  '/knowledge':  { name: 'PQC 知识库', icon: <BookOutlined />, shortcut: '5' },
-  '/downloads':  { name: '下载中心',   icon: <DownloadOutlined />, shortcut: '6' },
-  '/cicd':       { name: 'CI/CD 集成', icon: <CodeOutlined />, shortcut: '7' },
-};
-const proLayoutRoute = {
-  path: '/',
-  routes: Object.entries(routeMap).map(([path, { name, icon }]) => ({ path, name, icon })),
-};
 
 /* ─── Page transition variants ─── */
 const pageVariants = {
@@ -49,73 +36,9 @@ const pageVariants = {
 };
 const pageTransition = { duration: 0.35, ease: [0.25, 0.46, 0.45, 0.94] };
 
-/* ─── Notification items ─── */
-const alertItems = [
-  { key:'1', label: <span style={{ color:'#ff4757' }}>CRITICAL: 发现 RSA-1024 密钥</span> },
-  { key:'2', label: <span style={{ color:'#ff6b35' }}>HIGH: TLS 1.2 使用弱密码套件</span> },
-  { key:'3', label: <span style={{ color:'#ffa502' }}>MEDIUM: SHA-1 签名待迁移</span> },
-  { key:'4', label: <span style={{ color:'#888' }}>点击查看全部告警 →</span> },
-];
-
-/* ─── Help items ─── */
-const helpItems = [
-  { key: 'shortcuts', label: <span>键盘快捷键 <Tag style={{ float:'right', fontSize:10 }}>Alt+1~5</Tag></span> },
-  { key: 'github', label: <span><GithubOutlined style={{ marginRight: 6 }} />GitHub 源码</span> },
-  { key: 'docs', label: <span><BookOutlined style={{ marginRight: 6 }} />NIST PQC 标准文档</span> },
-  { key: 'about', label: <span><InfoCircleOutlined style={{ marginRight: 6 }} />关于 QuantumShield</span> },
-];
-
-/* ─── Theme token ─── */
-const themeConfig = {
-  algorithm: theme.darkAlgorithm,
-  token: {
-    colorPrimary: '#6C5CE7',
-    borderRadius: 10,
-    colorBgContainer: '#111128',
-    colorBgLayout: '#080818',
-    colorBgElevated: '#16163a',
-    colorBorder: '#1e1e45',
-    colorBorderSecondary: '#161636',
-    fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'PingFang SC', 'Microsoft YaHei', sans-serif",
-    fontSize: 13,
-  },
-  components: {
-    Card:     { colorBgContainer: '#0d0d24' },
-    Table:    { colorBgContainer: 'transparent', headerBg: '#0a0a20' },
-    Collapse: { headerBg: '#0d0d24', contentBg: '#080818' },
-    Tabs:     { cardBg: '#0d0d24' },
-    Menu:     { darkItemBg: 'transparent' },
-    Alert:    { borderRadiusLG: 12 },
-    Tag:      { borderRadiusSM: 6 },
-  },
-};
-
-/* ─── ProLayout token ─── */
-const layoutToken = {
-  sider: {
-    colorMenuBackground: '#0a0a1e',
-    colorTextMenu: '#6b6b8d',
-    colorTextMenuSelected: '#fff',
-    colorBgMenuItemSelected: 'rgba(108,92,231,0.18)',
-    colorTextMenuActive: '#a29bfe',
-    colorMenuItemDivider: '#161636',
-    paddingBlockLayoutMenu: 6,
-    paddingInlineLayoutMenu: 16,
-  },
-  header: {
-    colorBgHeader: 'rgba(10,10,30,0.85)',
-    colorTextMenu: '#6b6b8d',
-    colorTextMenuSelected: '#fff',
-    colorBgMenuItemSelected: 'transparent',
-    heightLayoutHeader: 52,
-  },
-  pageContainer: {
-    paddingBlockPageContainerContent: 20,
-    paddingInlinePageContainerContent: 20,
-  },
-};
-
 export default function App() {
+  const { isDark, toggleTheme, themeConfig, layoutToken, colors } = useTheme();
+  const { lang, t, toggleLang } = useI18n();
   const [pathname, setPathname] = useState('/dashboard');
   const [scanResult, setScanResult] = useState(null);
   const [collapsed, setCollapsed] = useState(false);
@@ -124,23 +47,51 @@ export default function App() {
   const [engineStatus, setEngineStatus] = useState('online');
   const [sysInfo, setSysInfo] = useState(null);
 
-  // Clock tick for status bar
+  /* ─── Route definitions (reactive to lang) ─── */
+  const routeMap = useMemo(() => ({
+    '/dashboard':  { name: t('nav.dashboard'), icon: <DashboardOutlined />, shortcut: '1' },
+    '/scanner':    { name: t('nav.scanner'), icon: <ScanOutlined />, shortcut: '2' },
+    '/migration':  { name: t('nav.migration'), icon: <SwapOutlined />, shortcut: '3' },
+    '/compliance': { name: t('nav.compliance'), icon: <AuditOutlined />, shortcut: '4' },
+    '/knowledge':  { name: t('nav.knowledge'), icon: <BookOutlined />, shortcut: '5' },
+    '/downloads':  { name: t('nav.downloads'), icon: <DownloadOutlined />, shortcut: '6' },
+    '/cicd':       { name: t('nav.cicd'), icon: <CodeOutlined />, shortcut: '7' },
+  }), [t]);
+
+  const proLayoutRoute = useMemo(() => ({
+    path: '/',
+    routes: Object.entries(routeMap).map(([path, { name, icon }]) => ({ path, name, icon })),
+  }), [routeMap]);
+
+  /* ─── Notification items ─── */
+  const alertItems = useMemo(() => [
+    { key:'1', label: <span style={{ color:'#ff4757' }}>{t('alert.critical_rsa')}</span> },
+    { key:'2', label: <span style={{ color:'#ff6b35' }}>{t('alert.high_tls')}</span> },
+    { key:'3', label: <span style={{ color:'#ffa502' }}>{t('alert.medium_sha')}</span> },
+    { key:'4', label: <span style={{ color: colors.textDim }}>{t('alert.view_all')}</span> },
+  ], [t, colors]);
+
+  /* ─── Help items ─── */
+  const helpItems = useMemo(() => [
+    { key: 'shortcuts', label: <span>{t('app.shortcuts')} <Tag style={{ float:'right', fontSize:10 }}>Alt+1~7</Tag></span> },
+    { key: 'github', label: <span><GithubOutlined style={{ marginRight: 6 }} />{t('app.github')}</span> },
+    { key: 'docs', label: <span><BookOutlined style={{ marginRight: 6 }} />{t('app.docs')}</span> },
+    { key: 'about', label: <span><InfoCircleOutlined style={{ marginRight: 6 }} />{t('app.about')}</span> },
+  ], [t]);
+
+  // Clock tick
   useEffect(() => {
-    const t = setInterval(() => setTick(d => d + 1), 60_000);
-    return () => clearInterval(t);
+    const timer = setInterval(() => setTick(d => d + 1), 60_000);
+    return () => clearInterval(timer);
   }, []);
 
-  // Check engine health and system info on mount
+  // Check engine health
   useEffect(() => {
-    getHealthCheck()
-      .then(() => setEngineStatus('online'))
-      .catch(() => setEngineStatus('offline'));
-    getSystemInfo()
-      .then(info => setSysInfo(info))
-      .catch(() => {});
+    getHealthCheck().then(() => setEngineStatus('online')).catch(() => setEngineStatus('offline'));
+    getSystemInfo().then(info => setSysInfo(info)).catch(() => {});
   }, []);
 
-  // Keyboard shortcuts: Alt+1~5 for page navigation
+  // Keyboard shortcuts
   useEffect(() => {
     const handler = (e) => {
       if (e.altKey && e.key >= '1' && e.key <= '7') {
@@ -149,17 +100,14 @@ export default function App() {
         const idx = parseInt(e.key) - 1;
         if (paths[idx]) setPathname(paths[idx]);
       }
-      // Alt+F for fullscreen toggle
-      if (e.altKey && e.key === 'f') {
-        e.preventDefault();
-        toggleFullscreen();
-      }
+      if (e.altKey && e.key === 'f') { e.preventDefault(); toggleFullscreen(); }
+      if (e.altKey && e.key === 't') { e.preventDefault(); toggleTheme(); }
+      if (e.altKey && e.key === 'l') { e.preventDefault(); toggleLang(); }
     };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
-  }, []);
+  }, [routeMap, toggleTheme, toggleLang]);
 
-  // Fullscreen toggle
   const toggleFullscreen = useCallback(() => {
     if (!document.fullscreenElement) {
       document.documentElement.requestFullscreen?.().then(() => setIsFullscreen(true));
@@ -185,7 +133,7 @@ export default function App() {
   }, [pathname, scanResult, navigate]);
 
   const now = new Date();
-  const timeStr = now.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
+  const timeStr = now.toLocaleTimeString(lang === 'zh' ? 'zh-CN' : 'en-US', { hour: '2-digit', minute: '2-digit' });
 
   const handleHelpClick = useCallback(({ key }) => {
     switch (key) {
@@ -193,17 +141,15 @@ export default function App() {
       case 'docs': window.open('https://csrc.nist.gov/projects/post-quantum-cryptography', '_blank'); break;
       case 'shortcuts':
         notification.info({
-          message: '键盘快捷键',
+          message: t('app.shortcuts'),
           description: (
             <div style={{ fontSize: 12, lineHeight: 2 }}>
-              <div><Tag>Alt+1</Tag> 威胁仪表盘</div>
-              <div><Tag>Alt+2</Tag> 代码扫描器</div>
-              <div><Tag>Alt+3</Tag> 一键迁移</div>
-              <div><Tag>Alt+4</Tag> 合规中心</div>
-              <div><Tag>Alt+5</Tag> PQC 知识库</div>
-              <div><Tag>Alt+6</Tag> 下载中心</div>
-              <div><Tag>Alt+7</Tag> CI/CD 集成</div>
-              <div><Tag>Alt+F</Tag> 全屏模式</div>
+              {Object.entries(routeMap).map(([, r]) => (
+                <div key={r.shortcut}><Tag>Alt+{r.shortcut}</Tag> {r.name}</div>
+              ))}
+              <div><Tag>Alt+F</Tag> {t('app.fullscreen')}</div>
+              <div><Tag>Alt+T</Tag> {t('theme.dark')}/{t('theme.light')}</div>
+              <div><Tag>Alt+L</Tag> 中/EN</div>
             </div>
           ),
           placement: 'topRight',
@@ -212,14 +158,14 @@ export default function App() {
         break;
       case 'about':
         notification.info({
-          message: 'QuantumShield v2.0.0',
+          message: 'QuantumShield v2.2.0',
           description: (
             <div style={{ fontSize: 12, lineHeight: 1.8 }}>
-              <p>企业级后量子密码学迁移平台</p>
-              <p>支持 11 种编程语言 · 200+ 扫描规则</p>
-              <p>NIST FIPS 203/204/205 标准</p>
+              <p>{t('app.about_desc')}</p>
+              <p>{t('app.about_rules')}</p>
+              <p>{t('app.about_nist')}</p>
               {sysInfo && (
-                <div style={{ marginTop: 8, color: '#7a7a9e' }}>
+                <div style={{ marginTop: 8, color: colors.textSecondary }}>
                   <div>Platform: {sysInfo.platform} ({sysInfo.arch})</div>
                   <div>Node: {sysInfo.node} · Rules: {sysInfo.rules}</div>
                   <div>Memory: {sysInfo.memory_mb}MB · Uptime: {sysInfo.uptime}s</div>
@@ -232,18 +178,18 @@ export default function App() {
         });
         break;
     }
-  }, [sysInfo]);
+  }, [sysInfo, t, routeMap, colors]);
 
   return (
-    <ConfigProvider locale={zhCN} theme={themeConfig}>
+    <ConfigProvider locale={lang === 'zh' ? zhCN : enUS} theme={themeConfig}>
       <AntApp>
-        <WaterMark content="QuantumShield" fontColor="rgba(108,92,231,0.015)" fontSize={13} zIndex={0}>
+        <WaterMark content="QuantumShield" fontColor={isDark ? "rgba(108,92,231,0.015)" : "rgba(108,92,231,0.025)"} fontSize={13} zIndex={0}>
           <ProLayout
             title="QuantumShield"
             logo={
               <motion.div
-                animate={{ rotate: [0, 360] }}
-                transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
+                animate={{ scale: [1, 1.06, 1] }}
+                transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
                 style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
               >
                 <ExperimentOutlined style={{ fontSize: 24, color: '#6C5CE7', filter: 'drop-shadow(0 0 8px rgba(108,92,231,0.6))' }} />
@@ -255,49 +201,65 @@ export default function App() {
             fixedHeader
             layout="mix"
             splitMenus={false}
-            navTheme="realDark"
+            navTheme={isDark ? 'realDark' : 'light'}
             siderMenuType="group"
             collapsed={collapsed}
             onCollapse={setCollapsed}
+            collapsedButtonRender={false}
+            siderWidth={180}
             token={layoutToken}
 
-            /* ─── Top-right actions ─── */
             actionsRender={() => [
-              /* Status bar items */
+              /* Theme toggle */
+              <Tooltip key="theme" title={isDark ? t('theme.light') : t('theme.dark')}>
+                <div
+                  onClick={toggleTheme}
+                  style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}
+                >
+                  {isDark ? <SunOutlined style={{ color: '#ffa502', fontSize: 15 }} /> : <MoonOutlined style={{ color: '#6C5CE7', fontSize: 15 }} />}
+                </div>
+              </Tooltip>,
+              /* Language toggle */
+              <Tooltip key="lang" title="中/EN (Alt+L)">
+                <div
+                  onClick={toggleLang}
+                  style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, color: colors.textDim, fontSize: 12, fontWeight: 600 }}
+                >
+                  <TranslationOutlined style={{ fontSize: 14 }} />
+                  <span style={{ fontSize: 11 }}>{lang === 'zh' ? 'EN' : '中'}</span>
+                </div>
+              </Tooltip>,
+              /* Status */
               <div key="status" className="app-status-bar">
-                <Tooltip title={engineStatus === 'online' ? '引擎运行正常' : '引擎离线'}>
+                <Tooltip title={engineStatus === 'online' ? t('app.engine_online') : t('app.engine_offline')}>
                   <span className={`status-dot ${engineStatus === 'online' ? 'status-dot--ok' : 'status-dot--err'}`} />
                 </Tooltip>
-                <Text style={{ color: '#3d3d5c', fontSize: 11 }}>{timeStr}</Text>
+                <Text style={{ color: colors.textDim, fontSize: 11 }}>{timeStr}</Text>
               </div>,
-              <Tooltip key="alerts" title="安全告警">
+              <Tooltip key="alerts" title={t('app.alerts')}>
                 <Dropdown menu={{ items: alertItems }} placement="bottomRight">
                   <Badge count={3} size="small" offset={[-2, 2]}>
-                    <BellOutlined style={{ color: '#5a5a7a', fontSize: 15, cursor: 'pointer' }} />
+                    <BellOutlined style={{ color: colors.textDim, fontSize: 15, cursor: 'pointer' }} />
                   </Badge>
                 </Dropdown>
               </Tooltip>,
-              <Tag key="ver" style={{ color: '#3d3d5c', background: 'transparent', border: '1px solid #1e1e3e', fontSize: 10, margin: '0 4px' }}>v2.0.0</Tag>,
-              <Tooltip key="gh" title="GitHub 项目仓库">
-                <a href={GITHUB_URL} target="_blank" rel="noreferrer" style={{ color: '#4a4a6a', fontSize: 16 }}>
+              <Tag key="ver" style={{ color: colors.textDim, background: 'transparent', border: `1px solid ${colors.border}`, fontSize: 10, margin: '0 4px' }}>v2.2.0</Tag>,
+              <Tooltip key="gh" title={t('app.github')}>
+                <a href={GITHUB_URL} target="_blank" rel="noreferrer" style={{ color: colors.textDim, fontSize: 16 }}>
                   <GithubOutlined />
                 </a>
               </Tooltip>,
-              <Tooltip key="fullscreen" title={isFullscreen ? '退出全屏 (Alt+F)' : '全屏模式 (Alt+F)'}>
+              <Tooltip key="fullscreen" title={isFullscreen ? t('app.exit_fullscreen') : t('app.fullscreen')}>
                 {isFullscreen
-                  ? <FullscreenExitOutlined onClick={toggleFullscreen} style={{ color: '#4a4a6a', cursor: 'pointer' }} />
-                  : <FullscreenOutlined onClick={toggleFullscreen} style={{ color: '#4a4a6a', cursor: 'pointer' }} />
+                  ? <FullscreenExitOutlined onClick={toggleFullscreen} style={{ color: colors.textDim, cursor: 'pointer' }} />
+                  : <FullscreenOutlined onClick={toggleFullscreen} style={{ color: colors.textDim, cursor: 'pointer' }} />
                 }
               </Tooltip>,
               <Dropdown key="help" menu={{ items: helpItems, onClick: handleHelpClick }} placement="bottomRight">
-                <QuestionCircleOutlined style={{ color: '#4a4a6a', cursor: 'pointer' }} />
+                <QuestionCircleOutlined style={{ color: colors.textDim, cursor: 'pointer' }} />
               </Dropdown>,
-              <Tooltip key="settings" title="系统设置">
-                <SettingOutlined style={{ color: '#4a4a6a', cursor: 'pointer' }} />
-              </Tooltip>,
             ]}
 
-            /* ─── Header content: PQC standard badges ─── */
             headerContentRender={() => (
               <div className="header-badges">
                 <SafetyOutlined style={{ color: '#6C5CE7', fontSize: 12, opacity: 0.7 }} />
@@ -313,7 +275,6 @@ export default function App() {
               </div>
             )}
 
-            /* ─── Sidebar menu item ─── */
             menuItemRender={(item, dom) => {
               const route = routeMap[item.path];
               return (
@@ -328,7 +289,6 @@ export default function App() {
               );
             }}
 
-            /* ─── Sidebar footer ─── */
             menuFooterRender={(props) => {
               if (props?.collapsed) return (
                 <div style={{ textAlign: 'center', padding: '12px 0 16px' }}>
@@ -347,8 +307,7 @@ export default function App() {
               );
             }}
 
-            /* ─── Content area ─── */
-            contentStyle={{ background: '#080818', minHeight: '100vh' }}
+            contentStyle={{ background: colors.bg, minHeight: '100vh', transition: 'background 0.3s', padding: 0 }}
           >
             <PageContainer
               header={{ title: null, breadcrumb: {} }}
@@ -368,11 +327,11 @@ export default function App() {
               </AnimatePresence>
             </PageContainer>
 
-            {/* ─── Bottom status bar (desktop style) ─── */}
+            {/* ─── Bottom status bar ─── */}
             <div className="desktop-status-bar">
               <div className="desktop-status-bar__left">
                 <DesktopOutlined style={{ fontSize: 11, marginRight: 6 }} />
-                <span>QuantumShield Desktop v2.0</span>
+                <span>QuantumShield Desktop v2.2</span>
                 <span className="desktop-status-bar__sep">|</span>
                 {engineStatus === 'online' ? (
                   <>
@@ -386,20 +345,20 @@ export default function App() {
                   </>
                 )}
                 <span className="desktop-status-bar__sep">|</span>
-                <span style={{ color: '#4a4a6e' }}>{sysInfo ? `${sysInfo.languages} langs · ${sysInfo.rules} rules` : 'Loading...'}</span>
+                <span>{sysInfo ? `${sysInfo.languages} langs · ${sysInfo.rules} rules` : t('app.status_loading')}</span>
                 <span className="desktop-status-bar__sep">|</span>
-                <span style={{ color: '#4a4a6e' }}>Alt+1~7 快捷导航</span>
+                <span>Alt+1~7 {t('app.quick_nav')}</span>
               </div>
               <div className="desktop-status-bar__right">
-                <a href={GITHUB_URL} target="_blank" rel="noreferrer" style={{ color: '#4a4a6e', textDecoration: 'none' }}>
+                <a href={GITHUB_URL} target="_blank" rel="noreferrer" style={{ color: 'inherit', textDecoration: 'none' }}>
                   <GithubOutlined style={{ fontSize: 11, marginRight: 4 }} />
                   <span>GitHub</span>
                 </a>
                 <span className="desktop-status-bar__sep">|</span>
-                <span>NIST PQC Compliant</span>
+                <span>{t('app.nist_compliant')}</span>
                 <span className="desktop-status-bar__sep">|</span>
                 <ThunderboltOutlined style={{ fontSize: 11, marginRight: 4, color: '#2ed573' }} />
-                <span style={{ color: '#2ed573' }}>Ready</span>
+                <span style={{ color: '#2ed573' }}>{t('app.status_ready')}</span>
               </div>
             </div>
           </ProLayout>
