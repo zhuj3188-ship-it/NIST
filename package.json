@@ -1,0 +1,146 @@
+{
+  "name": "quantumshield",
+  "productName": "QuantumShield",
+  "version": "2.1.0",
+  "description": "QuantumShield — Enterprise Post-Quantum Cryptography Migration Platform. Supports 11 languages, 200+ rules, NIST FIPS 203/204/205.",
+  "main": "electron/main.js",
+  "author": "QuantumShield Team",
+  "license": "MIT",
+  "homepage": "https://github.com/zhuj3188-ship-it/NIST",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/zhuj3188-ship-it/NIST.git"
+  },
+  "bugs": {
+    "url": "https://github.com/zhuj3188-ship-it/NIST/issues"
+  },
+  "keywords": [
+    "post-quantum",
+    "cryptography",
+    "pqc",
+    "migration",
+    "nist",
+    "security",
+    "scanner",
+    "ml-kem",
+    "ml-dsa",
+    "quantum-safe"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "server": "node server/index.js",
+    "client": "cd client && vite --port 5173",
+    "build": "cd client && vite build",
+    "start": "NODE_ENV=production node server/index.js",
+    "preview": "npm run build && npm run start",
+    "test": "node -e \"const s=require('./server/engine/scanner');const sc=new s();const r=sc.scanFile('import hashlib\\nhashlib.md5(b\"test\")','test.py');console.log(r.length>0?'PASS':'FAIL',r.length,'findings')\"",
+    "electron:dev": "concurrently \"npm run server\" \"cd client && vite --port 5173\" \"npx wait-on http://localhost:3001/api/health && electron . --dev\"",
+    "electron:start": "npm run build && electron .",
+    "electron:build": "npm run build && electron-builder",
+    "electron:pack": "npm run build && electron-builder --dir",
+    "electron:win": "npm run build && electron-builder --win",
+    "electron:mac": "npm run build && electron-builder --mac",
+    "electron:linux": "npm run build && electron-builder --linux",
+    "electron:all": "npm run build && electron-builder --win --mac --linux"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "multer": "^1.4.5-lts.1",
+    "uuid": "^9.0.0",
+    "concurrently": "^8.2.2"
+  },
+  "devDependencies": {
+    "electron": "^33.0.0",
+    "electron-builder": "^25.1.8",
+    "wait-on": "^8.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "build": {
+    "appId": "com.quantumshield.desktop",
+    "productName": "QuantumShield",
+    "copyright": "Copyright 2024-2026 QuantumShield Team",
+    "directories": {
+      "output": "dist-electron"
+    },
+    "files": [
+      "electron/**/*",
+      "server/**/*",
+      "client/dist/**/*",
+      "node_modules/**/*",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "client/dist",
+        "to": "client/dist"
+      }
+    ],
+    "win": {
+      "target": [
+        { "target": "nsis", "arch": ["x64", "arm64"] },
+        { "target": "portable", "arch": ["x64"] },
+        { "target": "zip", "arch": ["x64", "arm64"] }
+      ],
+      "icon": "electron/icons/icon.svg",
+      "artifactName": "QuantumShield-${version}-win-${arch}.${ext}",
+      "requestedExecutionLevel": "asInvoker"
+    },
+    "mac": {
+      "target": [
+        { "target": "dmg", "arch": ["x64", "arm64"] },
+        { "target": "zip", "arch": ["x64", "arm64"] }
+      ],
+      "icon": "electron/icons/icon.svg",
+      "category": "public.app-category.developer-tools",
+      "artifactName": "QuantumShield-${version}-mac-${arch}.${ext}",
+      "darkModeSupport": true,
+      "hardenedRuntime": true
+    },
+    "linux": {
+      "target": [
+        { "target": "AppImage", "arch": ["x64", "arm64"] },
+        { "target": "deb", "arch": ["x64", "arm64"] },
+        { "target": "rpm", "arch": ["x64"] },
+        { "target": "snap", "arch": ["x64"] },
+        { "target": "tar.gz", "arch": ["x64", "arm64"] }
+      ],
+      "icon": "electron/icons",
+      "category": "Development",
+      "artifactName": "QuantumShield-${version}-linux-${arch}.${ext}",
+      "desktop": {
+        "Name": "QuantumShield",
+        "Comment": "Post-Quantum Cryptography Migration Platform",
+        "Terminal": "false",
+        "Type": "Application",
+        "Categories": "Development;Security;Utility;"
+      }
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": true,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "QuantumShield",
+      "installerIcon": "electron/icons/icon.ico",
+      "uninstallerIcon": "electron/icons/icon.ico",
+      "license": "LICENSE"
+    },
+    "dmg": {
+      "title": "QuantumShield ${version}",
+      "backgroundColor": "#060612",
+      "iconSize": 100,
+      "contents": [
+        { "x": 130, "y": 220 },
+        { "x": 410, "y": 220, "type": "link", "path": "/Applications" }
+      ]
+    },
+    "snap": {
+      "grade": "stable",
+      "confinement": "strict"
+    }
+  }
+}
