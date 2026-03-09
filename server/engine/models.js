@@ -1,16 +1,18 @@
 /**
- * QuantumShield — 核心数据模型
- * 对标文档中 Finding dataclass 的完整实现
+ * QuantumShield — Core Data Models v5.0
+ * Enhanced: CVSS 3.1 scoring, quantum timeline, granular algorithm families,
+ * comprehensive PQC targets, NIST IR 8547 alignment, CNSA 2.0 mapping,
+ * extended quantum qubit estimates, data retention risk classification
  */
 
-// ============ 枚举定义 ============
+// ============ Enumerations ============
 
 const QuantumRisk = {
-  CRITICAL: 'CRITICAL',   // RSA, ECDSA/ECDH, DH/DSA
-  HIGH: 'HIGH',           // Ed25519, X25519
-  MEDIUM: 'MEDIUM',       // AES-128, SHA-256 for HMAC
-  LOW: 'LOW',             // Minor issues
-  SAFE: 'SAFE',           // AES-256, SHA-384+, ChaCha20-Poly1305
+  CRITICAL: 'CRITICAL',   // RSA, ECDSA/ECDH, DH/DSA, classically broken
+  HIGH: 'HIGH',           // Ed25519, X25519, Blowfish
+  MEDIUM: 'MEDIUM',       // AES-128, SHA-256 HMAC, RIPEMD-160
+  LOW: 'LOW',             // Minor issues, informational
+  SAFE: 'SAFE',           // AES-256, SHA-384+, ChaCha20-Poly1305, PQC
 };
 
 const UsageType = {
@@ -23,14 +25,23 @@ const UsageType = {
   HASHING: 'hashing',
   CERTIFICATE: 'certificate',
   TLS_CONFIG: 'tls_config',
+  SSH_CONFIG: 'ssh_config',
   DEPENDENCY: 'dependency',
+  RANDOM: 'random',
+  KEY_DERIVATION: 'key_derivation',
+  MAC: 'mac',
+  PASSWORD_HASH: 'password_hash',
 };
 
 const MigrationStrategy = {
-  PURE_PQC: 'pure_pqc',         // 纯后量子迁移
-  HYBRID: 'hybrid',             // 混合迁移（推荐）
-  CRYPTO_AGILE: 'crypto_agile', // 密码学敏捷化
-  UPGRADE_PARAMS: 'upgrade_params', // 升级参数（如 AES-128→256）
+  PURE_PQC: 'pure_pqc',
+  HYBRID: 'hybrid',
+  CRYPTO_AGILE: 'crypto_agile',
+  UPGRADE_PARAMS: 'upgrade_params',
+  COMPOSITE: 'composite',
+  DUAL_STACK: 'dual_stack',
+  PROGRESSIVE: 'progressive',
+  DROP_IN_REPLACE: 'drop_in_replace',
 };
 
 const AlgorithmFamily = {
@@ -41,6 +52,9 @@ const AlgorithmFamily = {
   SYMMETRIC: 'SYMMETRIC',
   HASH: 'HASH',
   STREAM_CIPHER: 'STREAM_CIPHER',
+  KDF: 'KDF',
+  MAC: 'MAC',
+  RANDOM: 'RANDOM',
 };
 
 const ScanMode = {
@@ -49,30 +63,24 @@ const ScanMode = {
   DEPENDENCY: 'dependency',
   CERTIFICATE: 'certificate',
   CONFIG: 'config',
+  SEMANTIC: 'semantic',
 };
 
-// ============ Finding 核心模型 ============
+// ============ Finding Core Model ============
 
 function createFinding(overrides = {}) {
   return {
-    // 位置信息
     file_path: '',
     line_number: 0,
     column_number: 0,
     end_line: 0,
-
-    // 算法信息
     algorithm: '',
     algorithm_family: '',
     key_size: null,
-
-    // 分析结果
     usage_type: UsageType.KEY_GENERATION,
     quantum_risk: QuantumRisk.CRITICAL,
     confidence: 0.9,
     scan_mode: ScanMode.REGEX,
-
-    // 上下文
     library: '',
     library_version: '',
     code_snippet: '',
@@ -80,43 +88,34 @@ function createFinding(overrides = {}) {
     context_after: '',
     is_external_facing: false,
     is_in_test: false,
-
-    // 迁移建议
     migration_target: '',
     migration_strategy: MigrationStrategy.HYBRID,
     nist_standard: '',
     nist_deprecation_year: 2030,
-
-    // 元数据
     description: '',
     description_zh: '',
     tags: [],
     cwe_id: '',
-
+    cvss_base: null,
+    severity_justification: '',
     ...overrides,
   };
 }
 
-// ============ ScanResult 结果模型 ============
+// ============ ScanResult Model ============
 
 function createScanResult(overrides = {}) {
   return {
     id: '',
     timestamp: new Date().toISOString(),
     scan_duration_ms: 0,
-
-    // 输入信息
     project_name: '',
     total_files: 0,
     total_lines: 0,
     languages_detected: [],
     files_scanned: [],
-
-    // 核心结果
     findings: [],
     quantum_readiness_score: 100,
-
-    // 统计摘要
     summary: {
       total_findings: 0,
       by_risk: { CRITICAL: 0, HIGH: 0, MEDIUM: 0, LOW: 0, SAFE: 0 },
@@ -125,217 +124,382 @@ function createScanResult(overrides = {}) {
       by_language: {},
       by_usage_type: {},
       by_file: {},
+      by_library: {},
     },
-
-    // 依赖分析
     dependency_findings: [],
     certificate_findings: [],
-
-    // CBOM
     cbom: null,
-
     ...overrides,
   };
 }
 
-// ============ 量子脆弱性知识库 ============
+// ============ Quantum Vulnerability Knowledge Base v4.0 ============
 
 const QUANTUM_VULNERABILITY_DB = {
   // ===== CRITICAL: Shor's algorithm breaks in polynomial time =====
   'RSA-1024': {
     family: AlgorithmFamily.RSA, risk: QuantumRisk.CRITICAL,
-    quantum_threat: "Shor's algorithm factors in O((log N)³)",
-    time_to_break: 'Already insecure classically',
+    quantum_threat: "Shor's algorithm factors in O((log N)³); RSA-1024 already insecure classically (NIST disallowed since 2013)",
+    time_to_break: 'Already insecure classically; ~2,500 logical qubits with CRQC',
     migration_target: 'ML-KEM-768', nist_standard: 'FIPS 203',
-    nist_deprecation_year: 2024,
-    description_zh: 'RSA-1024 即使在经典计算下也已不安全',
-    cwe_id: 'CWE-327',
+    nist_deprecation_year: 2013,
+    description_zh: 'RSA-1024 即使在经典计算下也已不安全，NIST 自 2013 年起禁止使用',
+    cwe_id: 'CWE-327', cvss_base: 9.1,
+    severity_justification: 'Factoring RSA-1024 is feasible with classical hardware; quantum accelerates further',
+    shor_qubits_needed: 2500,
+    grover_impact: 'N/A (asymmetric)',
   },
   'RSA-2048': {
     family: AlgorithmFamily.RSA, risk: QuantumRisk.CRITICAL,
-    quantum_threat: "Shor's algorithm: ~4000 logical qubits needed",
-    time_to_break: '2030-2035 with CRQC',
+    quantum_threat: "Shor's algorithm: ~4,000 logical qubits; IBM/Google roadmaps target this by 2030-2033",
+    time_to_break: '2030-2035 with CRQC; HNDL risk is immediate',
     migration_target: 'ML-KEM-768', nist_standard: 'FIPS 203',
     nist_deprecation_year: 2030,
-    description_zh: 'RSA-2048 在量子计算机面前将不堪一击',
-    cwe_id: 'CWE-327',
+    description_zh: 'RSA-2048 在量子计算机面前将不堪一击，面临 HNDL 即时风险',
+    cwe_id: 'CWE-327', cvss_base: 7.5,
+    severity_justification: 'Secure classically but vulnerable to quantum; HNDL attack window open now',
+    shor_qubits_needed: 4000,
+    grover_impact: 'N/A (asymmetric)',
   },
   'RSA-3072': {
     family: AlgorithmFamily.RSA, risk: QuantumRisk.CRITICAL,
-    quantum_threat: "Shor's algorithm",
+    quantum_threat: "Shor's algorithm: ~6,000 logical qubits; provides ~128-bit classical security",
     time_to_break: '2033-2038 with advanced CRQC',
     migration_target: 'ML-KEM-1024', nist_standard: 'FIPS 203',
     nist_deprecation_year: 2030,
     description_zh: 'RSA-3072 提供更多经典安全性但仍不抗量子',
-    cwe_id: 'CWE-327',
+    cwe_id: 'CWE-327', cvss_base: 7.0,
+    shor_qubits_needed: 6000,
   },
   'RSA-4096': {
     family: AlgorithmFamily.RSA, risk: QuantumRisk.CRITICAL,
-    quantum_threat: "Shor's algorithm",
+    quantum_threat: "Shor's algorithm: ~8,000 logical qubits; delays but does not prevent quantum attack",
     time_to_break: '2035-2040 with advanced CRQC',
     migration_target: 'ML-KEM-1024', nist_standard: 'FIPS 203',
     nist_deprecation_year: 2030,
     description_zh: 'RSA-4096 不提供量子安全',
-    cwe_id: 'CWE-327',
+    cwe_id: 'CWE-327', cvss_base: 6.5,
+    shor_qubits_needed: 8000,
   },
   'ECDSA-P256': {
     family: AlgorithmFamily.ECC, risk: QuantumRisk.CRITICAL,
-    quantum_threat: "Shor's algorithm solves ECDLP",
-    time_to_break: 'Immediate with CRQC',
+    quantum_threat: "Shor's algorithm solves ECDLP in polynomial time; requires ~2,330 logical qubits",
+    time_to_break: 'Immediate with CRQC; fewer qubits needed than RSA-2048',
     migration_target: 'ML-DSA-65', nist_standard: 'FIPS 204',
     nist_deprecation_year: 2030,
-    description_zh: 'ECDSA P-256 基于椭圆曲线离散对数，量子脆弱',
-    cwe_id: 'CWE-327',
+    description_zh: 'ECDSA P-256 基于椭圆曲线离散对数，量子计算机可轻松破解',
+    cwe_id: 'CWE-327', cvss_base: 7.5,
+    shor_qubits_needed: 2330,
   },
   'ECDSA-P384': {
     family: AlgorithmFamily.ECC, risk: QuantumRisk.CRITICAL,
-    quantum_threat: "Shor's algorithm solves ECDLP",
+    quantum_threat: "Shor's algorithm solves ECDLP; requires ~3,484 logical qubits",
     time_to_break: 'Immediate with CRQC',
     migration_target: 'ML-DSA-87', nist_standard: 'FIPS 204',
     nist_deprecation_year: 2030,
-    description_zh: 'ECDSA P-384 基于椭圆曲线，量子脆弱',
-    cwe_id: 'CWE-327',
+    description_zh: 'ECDSA P-384 基于椭圆曲线，量子计算可破解',
+    cwe_id: 'CWE-327', cvss_base: 7.5,
+    shor_qubits_needed: 3484,
+  },
+  'ECDSA-P521': {
+    family: AlgorithmFamily.ECC, risk: QuantumRisk.CRITICAL,
+    quantum_threat: "Shor's algorithm solves ECDLP; requires ~4,719 logical qubits",
+    time_to_break: 'Immediate with CRQC',
+    migration_target: 'ML-DSA-87', nist_standard: 'FIPS 204',
+    nist_deprecation_year: 2030,
+    description_zh: 'ECDSA P-521 虽然密钥更长，仍不抗量子',
+    cwe_id: 'CWE-327', cvss_base: 7.5,
+    shor_qubits_needed: 4719,
   },
   'ECDH': {
     family: AlgorithmFamily.ECC, risk: QuantumRisk.CRITICAL,
-    quantum_threat: "Shor's algorithm solves ECDLP",
-    time_to_break: 'Immediate with CRQC',
+    quantum_threat: "Shor's algorithm solves ECDLP; shared secret recoverable",
+    time_to_break: 'Immediate with CRQC; high HNDL risk for recorded sessions',
     migration_target: 'ML-KEM-768', nist_standard: 'FIPS 203',
     nist_deprecation_year: 2030,
-    description_zh: 'ECDH 密钥交换基于椭圆曲线，量子脆弱',
-    cwe_id: 'CWE-327',
+    description_zh: 'ECDH 密钥交换基于椭圆曲线，量子可恢复共享密钥',
+    cwe_id: 'CWE-327', cvss_base: 7.5,
   },
   'DSA': {
     family: AlgorithmFamily.DSA, risk: QuantumRisk.CRITICAL,
-    quantum_threat: "Shor's algorithm solves DLP",
-    time_to_break: 'Immediate with CRQC',
+    quantum_threat: "Shor's algorithm solves DLP; DSA already deprecated by FIPS 186-5",
+    time_to_break: 'Immediate with CRQC; classically deprecated',
     migration_target: 'ML-DSA-65', nist_standard: 'FIPS 204',
-    nist_deprecation_year: 2028,
-    description_zh: 'DSA 基于离散对数问题，量子可破解',
-    cwe_id: 'CWE-327',
+    nist_deprecation_year: 2023,
+    description_zh: 'DSA 已被 FIPS 186-5 废弃且量子可破解',
+    cwe_id: 'CWE-327', cvss_base: 8.0,
+  },
+  'DH-1024': {
+    family: AlgorithmFamily.DH, risk: QuantumRisk.CRITICAL,
+    quantum_threat: "Shor's algorithm + Logjam attack; already classically weak",
+    time_to_break: 'Already partially broken (Logjam 2015)',
+    migration_target: 'ML-KEM-768', nist_standard: 'FIPS 203',
+    nist_deprecation_year: 2015,
+    description_zh: 'DH-1024 已被 Logjam 攻击削弱',
+    cwe_id: 'CWE-327', cvss_base: 9.0,
   },
   'DH-2048': {
     family: AlgorithmFamily.DH, risk: QuantumRisk.CRITICAL,
-    quantum_threat: "Shor's algorithm solves DLP",
+    quantum_threat: "Shor's algorithm solves DLP; ~4,000 logical qubits",
     time_to_break: '2030-2035 with CRQC',
     migration_target: 'ML-KEM-768', nist_standard: 'FIPS 203',
     nist_deprecation_year: 2030,
     description_zh: 'Diffie-Hellman 2048 密钥交换量子脆弱',
-    cwe_id: 'CWE-327',
+    cwe_id: 'CWE-327', cvss_base: 7.5,
   },
   'ElGamal': {
     family: AlgorithmFamily.DH, risk: QuantumRisk.CRITICAL,
-    quantum_threat: "Shor's algorithm solves DLP",
+    quantum_threat: "Shor's algorithm solves DLP; used in PGP legacy",
     time_to_break: 'Immediate with CRQC',
     migration_target: 'ML-KEM-768', nist_standard: 'FIPS 203',
     nist_deprecation_year: 2030,
-    description_zh: 'ElGamal 加密基于离散对数',
-    cwe_id: 'CWE-327',
+    description_zh: 'ElGamal 加密基于离散对数，常见于 PGP 旧版',
+    cwe_id: 'CWE-327', cvss_base: 7.5,
+  },
+  'ECDSA': {
+    family: AlgorithmFamily.ECC, risk: QuantumRisk.CRITICAL,
+    quantum_threat: "Shor's algorithm solves ECDLP",
+    time_to_break: 'Immediate with CRQC',
+    migration_target: 'ML-DSA-65', nist_standard: 'FIPS 204',
+    nist_deprecation_year: 2030,
+    description_zh: 'ECDSA 基于椭圆曲线离散对数，量子脆弱',
+    cwe_id: 'CWE-327', cvss_base: 7.5,
+  },
+  'RSA': {
+    family: AlgorithmFamily.RSA, risk: QuantumRisk.CRITICAL,
+    quantum_threat: "Shor's algorithm (generic RSA, assumed 2048-bit)",
+    time_to_break: '2030-2035 with CRQC',
+    migration_target: 'ML-KEM-768 / ML-DSA-65', nist_standard: 'FIPS 203/204',
+    nist_deprecation_year: 2030,
+    description_zh: 'RSA (通用) 在量子计算机面前不安全',
+    cwe_id: 'CWE-327', cvss_base: 7.5,
   },
 
   // ===== HIGH: Quantum-vulnerable but modern =====
   'Ed25519': {
     family: AlgorithmFamily.ECC, risk: QuantumRisk.HIGH,
-    quantum_threat: "Shor's algorithm solves ECDLP",
-    time_to_break: '2030-2035 with CRQC',
+    quantum_threat: "Shor's algorithm solves ECDLP on Curve25519; ~1,300 logical qubits",
+    time_to_break: '2028-2033 with CRQC (fewer qubits than NIST curves)',
     migration_target: 'ML-DSA-65', nist_standard: 'FIPS 204',
     nist_deprecation_year: 2031,
     description_zh: 'Ed25519 是现代椭圆曲线签名但仍不抗量子',
-    cwe_id: 'CWE-327',
+    cwe_id: 'CWE-327', cvss_base: 6.5,
+    shor_qubits_needed: 1300,
+  },
+  'Ed448': {
+    family: AlgorithmFamily.ECC, risk: QuantumRisk.HIGH,
+    quantum_threat: "Shor's algorithm solves ECDLP on Curve448",
+    time_to_break: '2030-2035 with CRQC',
+    migration_target: 'ML-DSA-87', nist_standard: 'FIPS 204',
+    nist_deprecation_year: 2031,
+    description_zh: 'Ed448 基于 Goldilocks 曲线，仍不抗量子',
+    cwe_id: 'CWE-327', cvss_base: 6.5,
   },
   'X25519': {
     family: AlgorithmFamily.ECC, risk: QuantumRisk.HIGH,
-    quantum_threat: "Shor's algorithm solves ECDLP",
-    time_to_break: '2030-2035 with CRQC',
+    quantum_threat: "Shor's algorithm solves ECDLP on Curve25519; HNDL risk for recorded key exchanges",
+    time_to_break: '2028-2033 with CRQC',
     migration_target: 'ML-KEM-768', nist_standard: 'FIPS 203',
     nist_deprecation_year: 2031,
-    description_zh: 'X25519 密钥交换量子脆弱',
-    cwe_id: 'CWE-327',
+    description_zh: 'X25519 密钥交换量子脆弱，已录制的通信面临 HNDL 风险',
+    cwe_id: 'CWE-327', cvss_base: 6.5,
+    shor_qubits_needed: 1300,
+  },
+  'X448': {
+    family: AlgorithmFamily.ECC, risk: QuantumRisk.HIGH,
+    quantum_threat: "Shor's algorithm on Curve448",
+    time_to_break: '2030-2035 with CRQC',
+    migration_target: 'ML-KEM-1024', nist_standard: 'FIPS 203',
+    nist_deprecation_year: 2031,
+    description_zh: 'X448 密钥交换量子脆弱',
+    cwe_id: 'CWE-327', cvss_base: 6.5,
+  },
+  'secp256k1': {
+    family: AlgorithmFamily.ECC, risk: QuantumRisk.CRITICAL,
+    quantum_threat: "Shor's algorithm; widely used in Bitcoin/Ethereum — all funds at risk with CRQC",
+    time_to_break: 'Immediate with CRQC; critical for blockchain assets',
+    migration_target: 'ML-DSA-65 / Hash-based signatures', nist_standard: 'FIPS 204',
+    nist_deprecation_year: 2030,
+    description_zh: 'secp256k1 (比特币/以太坊曲线) 量子可破解，所有链上资产面临风险',
+    cwe_id: 'CWE-327', cvss_base: 9.0,
   },
 
   // ===== MEDIUM: Grover's weakens but survivable with upgrades =====
   'AES-128': {
     family: AlgorithmFamily.SYMMETRIC, risk: QuantumRisk.MEDIUM,
-    quantum_threat: "Grover's reduces to 64-bit security",
-    time_to_break: 'Post-quantum: equivalent to 64-bit classical',
+    quantum_threat: "Grover's algorithm reduces effective security to 64-bit; below recommended minimum",
+    time_to_break: 'Post-quantum: equivalent to 64-bit classical brute-force',
     migration_target: 'AES-256', nist_standard: 'FIPS 197',
     nist_deprecation_year: 2031,
-    description_zh: 'AES-128 在量子下安全性降至 64 位，需升级至 AES-256',
-    cwe_id: 'CWE-326',
+    description_zh: 'AES-128 在量子下安全性降至 64 位，必须升级至 AES-256',
+    cwe_id: 'CWE-326', cvss_base: 5.3,
+    grover_impact: '128-bit → 64-bit effective security',
+  },
+  'AES-192': {
+    family: AlgorithmFamily.SYMMETRIC, risk: QuantumRisk.LOW,
+    quantum_threat: "Grover's reduces to 96-bit security; marginal but acceptable",
+    time_to_break: 'Quantum-safe (96-bit equivalent)',
+    migration_target: 'AES-256', nist_standard: 'FIPS 197',
+    nist_deprecation_year: 2035,
+    description_zh: 'AES-192 在量子下有 96 位安全性，建议升级至 AES-256',
+    cwe_id: 'CWE-326', cvss_base: 3.7,
+    grover_impact: '192-bit → 96-bit effective security',
   },
   'SHA-256-HMAC': {
     family: AlgorithmFamily.HASH, risk: QuantumRisk.MEDIUM,
-    quantum_threat: "Grover's reduces HMAC security margin",
+    quantum_threat: "Grover's reduces HMAC security margin; still 128-bit quantum security",
     time_to_break: 'Still secure but reduced margin',
     migration_target: 'SHA-384 / SHA-3-256', nist_standard: 'FIPS 198-1',
     nist_deprecation_year: 2035,
     description_zh: 'SHA-256 用于 HMAC 时安全边际降低，建议升级',
-    cwe_id: 'CWE-328',
+    cwe_id: 'CWE-328', cvss_base: 3.7,
+  },
+  'RIPEMD-160': {
+    family: AlgorithmFamily.HASH, risk: QuantumRisk.MEDIUM,
+    quantum_threat: "Grover's reduces to 80-bit; collision attacks feasible",
+    time_to_break: '80-bit security under Grover; collision weaknesses known',
+    migration_target: 'SHA-3-256', nist_standard: 'FIPS 202',
+    nist_deprecation_year: 2025,
+    description_zh: 'RIPEMD-160 安全边际不足，建议迁移到 SHA-3',
+    cwe_id: 'CWE-328', cvss_base: 5.3,
+  },
+  'SHA-224': {
+    family: AlgorithmFamily.HASH, risk: QuantumRisk.MEDIUM,
+    quantum_threat: "Grover's reduces collision resistance to 56-bit quantum",
+    time_to_break: 'Marginal quantum security',
+    migration_target: 'SHA-3-256', nist_standard: 'FIPS 202',
+    nist_deprecation_year: 2030,
+    description_zh: 'SHA-224 安全边际在量子下不足',
+    cwe_id: 'CWE-328', cvss_base: 4.3,
   },
 
   // ===== CRITICAL (classically broken) =====
   'DES': {
     family: AlgorithmFamily.SYMMETRIC, risk: QuantumRisk.CRITICAL,
-    quantum_threat: "Grover's reduces to 28-bit + already broken classically",
-    time_to_break: 'Already broken',
-    migration_target: 'AES-256-GCM', nist_standard: 'FIPS 197',
+    quantum_threat: "56-bit key; already broken classically since 1999 (DES Cracker); Grover's reduces to 28-bit",
+    time_to_break: 'Already broken (EFF DES Cracker 1999)',
+    migration_target: 'AES-256-GCM', nist_standard: 'FIPS 197 + SP 800-38D',
     nist_deprecation_year: 2005,
-    description_zh: 'DES 56位密钥已被暴力破解',
-    cwe_id: 'CWE-327',
+    description_zh: 'DES 56位密钥自 1999 年已被暴力破解',
+    cwe_id: 'CWE-327', cvss_base: 9.1,
   },
   '3DES': {
     family: AlgorithmFamily.SYMMETRIC, risk: QuantumRisk.CRITICAL,
-    quantum_threat: "Grover's + Sweet32 birthday attack",
-    time_to_break: 'Deprecated 2023',
+    quantum_threat: "64-bit block: Sweet32 birthday attack; NIST withdrew 3DES in 2023; Grover's halves key",
+    time_to_break: 'Deprecated 2023; Sweet32 practical attack demonstrated',
     migration_target: 'AES-256-GCM', nist_standard: 'FIPS 197',
     nist_deprecation_year: 2023,
-    description_zh: '3DES 已被 NIST 废弃',
-    cwe_id: 'CWE-327',
+    description_zh: '3DES 已被 NIST 于 2023 年正式废弃 (Sweet32 攻击)',
+    cwe_id: 'CWE-327', cvss_base: 8.1,
   },
   'RC4': {
     family: AlgorithmFamily.STREAM_CIPHER, risk: QuantumRisk.CRITICAL,
-    quantum_threat: 'Already broken classically',
-    time_to_break: 'Already broken',
+    quantum_threat: 'Statistical biases discovered (Fluhrer-Mantin-Shamir 2001, Royal Holloway 2013); banned in TLS by RFC 7465',
+    time_to_break: 'Already broken; banned in TLS since 2015 (RFC 7465)',
     migration_target: 'ChaCha20-Poly1305 / AES-256-GCM', nist_standard: 'RFC 8439',
     nist_deprecation_year: 2015,
-    description_zh: 'RC4 存在多种经典攻击，已被全面禁用',
-    cwe_id: 'CWE-327',
+    description_zh: 'RC4 存在多种经典攻击，已被 RFC 7465 全面禁用',
+    cwe_id: 'CWE-327', cvss_base: 9.1,
+  },
+  'RC2': {
+    family: AlgorithmFamily.SYMMETRIC, risk: QuantumRisk.CRITICAL,
+    quantum_threat: 'Effective key strength limited; related-key attacks',
+    time_to_break: 'Already broken classically',
+    migration_target: 'AES-256-GCM', nist_standard: 'FIPS 197',
+    nist_deprecation_year: 2010,
+    description_zh: 'RC2 存在已知弱点，已被废弃',
+    cwe_id: 'CWE-327', cvss_base: 9.1,
   },
   'Blowfish': {
     family: AlgorithmFamily.SYMMETRIC, risk: QuantumRisk.HIGH,
-    quantum_threat: "64-bit block birthday attack + Grover's",
-    time_to_break: '64-bit block vulnerable to birthday attacks',
+    quantum_threat: "64-bit block: birthday attack after 2³² blocks (~32GB); Grover's halves key strength",
+    time_to_break: 'Sweet32-class birthday attacks on 64-bit block',
     migration_target: 'AES-256-GCM', nist_standard: 'FIPS 197',
     nist_deprecation_year: 2020,
     description_zh: 'Blowfish 64位分组大小存在生日攻击风险',
-    cwe_id: 'CWE-327',
+    cwe_id: 'CWE-327', cvss_base: 6.5,
+  },
+  'IDEA': {
+    family: AlgorithmFamily.SYMMETRIC, risk: QuantumRisk.HIGH,
+    quantum_threat: '64-bit block cipher; birthday attack risk; discontinued',
+    time_to_break: '64-bit block vulnerable to birthday attacks',
+    migration_target: 'AES-256-GCM', nist_standard: 'FIPS 197',
+    nist_deprecation_year: 2020,
+    description_zh: 'IDEA 64位分组密码已过时',
+    cwe_id: 'CWE-327', cvss_base: 6.0,
+  },
+  'CAST5': {
+    family: AlgorithmFamily.SYMMETRIC, risk: QuantumRisk.HIGH,
+    quantum_threat: '64-bit block; limited to 128-bit key; legacy PGP cipher',
+    time_to_break: '64-bit block vulnerable to birthday attacks',
+    migration_target: 'AES-256-GCM', nist_standard: 'FIPS 197',
+    nist_deprecation_year: 2020,
+    description_zh: 'CAST5 64位分组密码，常见于旧版 PGP',
+    cwe_id: 'CWE-327', cvss_base: 6.0,
+  },
+  'MD4': {
+    family: AlgorithmFamily.HASH, risk: QuantumRisk.CRITICAL,
+    quantum_threat: 'Fully broken since 1991; trivial collision generation',
+    time_to_break: 'Broken since 1991; collision in microseconds',
+    migration_target: 'SHA-3-256', nist_standard: 'FIPS 202',
+    nist_deprecation_year: 2005,
+    description_zh: 'MD4 自 1991 年已被完全破解',
+    cwe_id: 'CWE-328', cvss_base: 9.8,
   },
   'MD5': {
     family: AlgorithmFamily.HASH, risk: QuantumRisk.CRITICAL,
-    quantum_threat: "Collision attacks + Grover's speedup",
-    time_to_break: 'Already broken for collision resistance',
+    quantum_threat: "Collision attacks practical since 2004 (Xiaoyun Wang); Grover's further weakens preimage",
+    time_to_break: 'Already broken (chosen-prefix collision 2019)',
     migration_target: 'SHA-3-256 / SHA-256', nist_standard: 'FIPS 202',
     nist_deprecation_year: 2010,
-    description_zh: 'MD5 碰撞攻击已被实证',
-    cwe_id: 'CWE-328',
+    description_zh: 'MD5 碰撞攻击已被实证 (Xiaoyun Wang 2004)',
+    cwe_id: 'CWE-328', cvss_base: 7.5,
   },
   'SHA-1': {
     family: AlgorithmFamily.HASH, risk: QuantumRisk.CRITICAL,
-    quantum_threat: "SHAttered collision + Grover's speedup",
-    time_to_break: 'Already broken (SHAttered 2017)',
+    quantum_threat: "SHAttered collision (Google 2017); chosen-prefix collision (2020); Grover's further weakens",
+    time_to_break: 'Already broken (SHAttered 2017, chosen-prefix 2020)',
     migration_target: 'SHA-3-256 / SHA-256', nist_standard: 'FIPS 202',
     nist_deprecation_year: 2013,
-    description_zh: 'SHA-1 碰撞攻击已被 Google 实证',
-    cwe_id: 'CWE-328',
+    description_zh: 'SHA-1 碰撞攻击已被 Google SHAttered (2017) 和 chosen-prefix (2020) 实证',
+    cwe_id: 'CWE-328', cvss_base: 7.5,
+  },
+
+  // ===== AES modes — insecure usage =====
+  'AES-ECB': {
+    family: AlgorithmFamily.SYMMETRIC, risk: QuantumRisk.HIGH,
+    quantum_threat: 'ECB mode leaks patterns in plaintext; no semantic security',
+    time_to_break: 'Classically insecure mode (pattern leakage)',
+    migration_target: 'AES-256-GCM', nist_standard: 'SP 800-38D',
+    nist_deprecation_year: 2020,
+    description_zh: 'AES-ECB 模式泄露明文模式，无语义安全性',
+    cwe_id: 'CWE-327', cvss_base: 6.5,
+  },
+  'AES-CBC-no-HMAC': {
+    family: AlgorithmFamily.SYMMETRIC, risk: QuantumRisk.MEDIUM,
+    quantum_threat: 'CBC without authentication: padding oracle attacks (POODLE, Lucky13)',
+    time_to_break: 'Padding oracle attacks feasible if no MAC',
+    migration_target: 'AES-256-GCM', nist_standard: 'SP 800-38D',
+    nist_deprecation_year: 2025,
+    description_zh: 'AES-CBC 不带 HMAC 容易受到填充预言攻击',
+    cwe_id: 'CWE-327', cvss_base: 5.9,
   },
 
   // ===== SAFE: Quantum-resistant =====
   'AES-256': {
     family: AlgorithmFamily.SYMMETRIC, risk: QuantumRisk.SAFE,
-    quantum_threat: "Grover's reduces to 128-bit (still safe)",
+    quantum_threat: "Grover's reduces to 128-bit (still safe; exceeds NIST minimum)",
     time_to_break: 'Quantum-resistant (128-bit equivalent)',
     migration_target: null, nist_standard: 'FIPS 197',
-    description_zh: 'AES-256 在量子下仍有128位安全性',
+    description_zh: 'AES-256 在量子下仍有 128 位安全性',
+    grover_impact: '256-bit → 128-bit effective security',
+  },
+  'SHA-256': {
+    family: AlgorithmFamily.HASH, risk: QuantumRisk.SAFE,
+    quantum_threat: "Grover's reduces collision resistance to 85-bit; preimage to 128-bit; adequate",
+    time_to_break: 'Quantum-safe for most applications',
+    migration_target: null, nist_standard: 'FIPS 180-4',
+    description_zh: 'SHA-256 在量子下仍保持足够安全性',
   },
   'SHA-384': {
     family: AlgorithmFamily.HASH, risk: QuantumRisk.SAFE,
@@ -351,12 +515,174 @@ const QUANTUM_VULNERABILITY_DB = {
     migration_target: null, nist_standard: 'FIPS 180-4',
     description_zh: 'SHA-512 量子安全',
   },
+  'SHA3-256': {
+    family: AlgorithmFamily.HASH, risk: QuantumRisk.SAFE,
+    quantum_threat: 'Keccak sponge construction; quantum-resistant',
+    time_to_break: 'Quantum-safe',
+    migration_target: null, nist_standard: 'FIPS 202',
+    description_zh: 'SHA3-256 基于 Keccak 海绵结构，量子安全',
+  },
+  'BLAKE2': {
+    family: AlgorithmFamily.HASH, risk: QuantumRisk.SAFE,
+    quantum_threat: 'Quantum-resistant with adequate security margin',
+    time_to_break: 'Quantum-safe',
+    migration_target: null, nist_standard: 'RFC 7693',
+    description_zh: 'BLAKE2 量子安全',
+  },
   'ChaCha20-Poly1305': {
     family: AlgorithmFamily.SYMMETRIC, risk: QuantumRisk.SAFE,
     quantum_threat: "Grover's reduces to 128-bit (still safe)",
     time_to_break: 'Quantum-resistant',
     migration_target: null, nist_standard: 'RFC 8439',
     description_zh: 'ChaCha20-Poly1305 (256-bit) 量子安全',
+  },
+  'XChaCha20-Poly1305': {
+    family: AlgorithmFamily.SYMMETRIC, risk: QuantumRisk.SAFE,
+    quantum_threat: 'Extended nonce variant; quantum-resistant',
+    time_to_break: 'Quantum-resistant',
+    migration_target: null, nist_standard: 'RFC draft',
+    description_zh: 'XChaCha20-Poly1305 量子安全',
+  },
+
+  // ===== PQC Standards (SAFE - target algorithms) =====
+  'ML-KEM-512': {
+    family: AlgorithmFamily.SYMMETRIC, risk: QuantumRisk.SAFE,
+    quantum_threat: 'Quantum-resistant (NIST Level 1; ~AES-128 equivalent)',
+    time_to_break: 'Quantum-safe',
+    migration_target: null, nist_standard: 'FIPS 203',
+    description_zh: 'ML-KEM-512 (CRYSTALS-Kyber) 量子安全密钥封装',
+  },
+  'ML-KEM-768': {
+    family: AlgorithmFamily.SYMMETRIC, risk: QuantumRisk.SAFE,
+    quantum_threat: 'Quantum-resistant (NIST Level 3; ~AES-192 equivalent); RECOMMENDED default',
+    time_to_break: 'Quantum-safe',
+    migration_target: null, nist_standard: 'FIPS 203',
+    description_zh: 'ML-KEM-768 (CRYSTALS-Kyber) 量子安全密钥封装 (推荐)',
+  },
+  'ML-KEM-1024': {
+    family: AlgorithmFamily.SYMMETRIC, risk: QuantumRisk.SAFE,
+    quantum_threat: 'Quantum-resistant (NIST Level 5; ~AES-256 equivalent)',
+    time_to_break: 'Quantum-safe',
+    migration_target: null, nist_standard: 'FIPS 203',
+    description_zh: 'ML-KEM-1024 (CRYSTALS-Kyber) 量子安全密钥封装 (最高安全级)',
+  },
+  'ML-DSA-44': {
+    family: AlgorithmFamily.SYMMETRIC, risk: QuantumRisk.SAFE,
+    quantum_threat: 'Quantum-resistant (NIST Level 2)',
+    time_to_break: 'Quantum-safe',
+    migration_target: null, nist_standard: 'FIPS 204',
+    description_zh: 'ML-DSA-44 (CRYSTALS-Dilithium) 量子安全签名',
+  },
+  'ML-DSA-65': {
+    family: AlgorithmFamily.SYMMETRIC, risk: QuantumRisk.SAFE,
+    quantum_threat: 'Quantum-resistant (NIST Level 3); RECOMMENDED default for signatures',
+    time_to_break: 'Quantum-safe',
+    migration_target: null, nist_standard: 'FIPS 204',
+    description_zh: 'ML-DSA-65 (CRYSTALS-Dilithium) 量子安全签名 (推荐)',
+  },
+  'ML-DSA-87': {
+    family: AlgorithmFamily.SYMMETRIC, risk: QuantumRisk.SAFE,
+    quantum_threat: 'Quantum-resistant (NIST Level 5)',
+    time_to_break: 'Quantum-safe',
+    migration_target: null, nist_standard: 'FIPS 204',
+    description_zh: 'ML-DSA-87 (CRYSTALS-Dilithium) 量子安全签名 (最高安全级)',
+  },
+  'SLH-DSA': {
+    family: AlgorithmFamily.SYMMETRIC, risk: QuantumRisk.SAFE,
+    quantum_threat: 'Quantum-resistant (hash-based; most conservative assumption)',
+    time_to_break: 'Quantum-safe',
+    migration_target: null, nist_standard: 'FIPS 205',
+    description_zh: 'SLH-DSA (SPHINCS+) 基于哈希的量子安全签名 (最保守方案)',
+  },
+  'FN-DSA': {
+    family: AlgorithmFamily.SYMMETRIC, risk: QuantumRisk.SAFE,
+    quantum_threat: 'Quantum-resistant (NTRU-lattice based; compact signatures)',
+    time_to_break: 'Quantum-safe',
+    migration_target: null, nist_standard: 'FIPS 206 (pending)',
+    description_zh: 'FN-DSA (FALCON) 基于 NTRU 格的量子安全签名 (小签名尺寸)',
+  },
+  'HQC': {
+    family: AlgorithmFamily.SYMMETRIC, risk: QuantumRisk.SAFE,
+    quantum_threat: 'Quantum-resistant (code-based KEM; NIST backup)',
+    time_to_break: 'Quantum-safe',
+    migration_target: null, nist_standard: 'NIST Round 4 (pending)',
+    description_zh: 'HQC 基于编码理论的量子安全密钥封装 (NIST 备选)',
+  },
+
+  // ===== Additional Vulnerability Entries v5.0 =====
+  'Camellia': {
+    family: AlgorithmFamily.SYMMETRIC, risk: QuantumRisk.MEDIUM,
+    quantum_threat: "128-bit Camellia reduced to 64-bit by Grover's; 256-bit variant is safe",
+    time_to_break: 'Quantum impact depends on key size',
+    migration_target: 'AES-256-GCM', nist_standard: 'RFC 3713',
+    nist_deprecation_year: 2035,
+    description_zh: 'Camellia 128位在量子下安全性不足，建议迁移到 AES-256',
+    cwe_id: 'CWE-326', cvss_base: 4.3,
+  },
+  'SEED': {
+    family: AlgorithmFamily.SYMMETRIC, risk: QuantumRisk.HIGH,
+    quantum_threat: '128-bit block cipher; Korean standard; limited international adoption',
+    time_to_break: '64-bit quantum security',
+    migration_target: 'AES-256-GCM', nist_standard: 'RFC 4269',
+    nist_deprecation_year: 2025,
+    description_zh: 'SEED 是韩国密码标准，128位在量子下安全性不足',
+    cwe_id: 'CWE-327', cvss_base: 5.3,
+  },
+  'SM2': {
+    family: AlgorithmFamily.ECC, risk: QuantumRisk.CRITICAL,
+    quantum_threat: "Shor's algorithm solves ECDLP on SM2 curve (256-bit)",
+    time_to_break: 'Immediate with CRQC; similar to P-256',
+    migration_target: 'ML-DSA-65', nist_standard: 'GB/T 32918',
+    nist_deprecation_year: 2030,
+    description_zh: 'SM2 (国密椭圆曲线) 基于 ECDLP，量子可破解',
+    cwe_id: 'CWE-327', cvss_base: 7.5,
+    shor_qubits_needed: 2330,
+  },
+  'SM3': {
+    family: AlgorithmFamily.HASH, risk: QuantumRisk.SAFE,
+    quantum_threat: 'SM3 hash (256-bit output); quantum-resistant like SHA-256',
+    time_to_break: 'Quantum-safe for most applications',
+    migration_target: null, nist_standard: 'GB/T 32905',
+    description_zh: 'SM3 国密哈希函数，256位输出，量子安全',
+  },
+  'SM4': {
+    family: AlgorithmFamily.SYMMETRIC, risk: QuantumRisk.MEDIUM,
+    quantum_threat: "128-bit key; Grover's reduces to 64-bit quantum security",
+    time_to_break: '64-bit quantum security (similar to AES-128)',
+    migration_target: 'AES-256-GCM', nist_standard: 'GB/T 32907',
+    nist_deprecation_year: 2031,
+    description_zh: 'SM4 国密分组密码 128位密钥，量子下安全性降至64位',
+    cwe_id: 'CWE-326', cvss_base: 5.3,
+    grover_impact: '128-bit → 64-bit effective security',
+  },
+  'Whirlpool': {
+    family: AlgorithmFamily.HASH, risk: QuantumRisk.SAFE,
+    quantum_threat: '512-bit hash; quantum-resistant with wide margin',
+    time_to_break: 'Quantum-safe',
+    migration_target: null, nist_standard: 'ISO/IEC 10118-3',
+    description_zh: 'Whirlpool 512位哈希，量子安全',
+  },
+  'BLAKE3': {
+    family: AlgorithmFamily.HASH, risk: QuantumRisk.SAFE,
+    quantum_threat: 'Modern hash function; quantum-resistant',
+    time_to_break: 'Quantum-safe',
+    migration_target: null, nist_standard: 'N/A (industry standard)',
+    description_zh: 'BLAKE3 现代高速哈希函数，量子安全',
+  },
+  'AES-256-GCM': {
+    family: AlgorithmFamily.SYMMETRIC, risk: QuantumRisk.SAFE,
+    quantum_threat: "AES-256 with authenticated encryption; Grover's reduces to 128-bit (safe)",
+    time_to_break: 'Quantum-resistant',
+    migration_target: null, nist_standard: 'FIPS 197 + SP 800-38D',
+    description_zh: 'AES-256-GCM 认证加密，量子安全',
+    grover_impact: '256-bit → 128-bit effective security',
+  },
+  'HMAC-SHA256': {
+    family: AlgorithmFamily.MAC, risk: QuantumRisk.SAFE,
+    quantum_threat: 'HMAC with SHA-256; quantum-resistant for MAC usage',
+    time_to_break: 'Quantum-safe for authentication',
+    migration_target: null, nist_standard: 'FIPS 198-1',
+    description_zh: 'HMAC-SHA256 消息认证码，量子安全',
   },
 };
 

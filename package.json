@@ -33,7 +33,7 @@
     "build": "cd client && vite build",
     "start": "NODE_ENV=production node server/index.js",
     "preview": "npm run build && npm run start",
-    "test": "node -e \"const s=require('./server/engine/scanner');const sc=new s();const r=sc.scanFile('import hashlib\\nhashlib.md5(b\"test\")','test.py');console.log(r.length>0?'PASS':'FAIL',r.length,'findings')\"",
+    "test": "node tests/run-tests.js",
     "electron:dev": "concurrently \"npm run server\" \"cd client && vite --port 5173\" \"npx wait-on http://localhost:3001/api/health && electron . --dev\"",
     "electron:start": "npm run build && electron .",
     "electron:build": "npm run build && electron-builder",

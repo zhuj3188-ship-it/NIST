@@ -319,17 +319,95 @@ hybrid_sig = {"classical": ec_sig, "pqc": pqc_sig, "pqc_pk": pqc_pk}
       },
     },
   },
+  rust: {
+    RSA: {
+      pure_pqc: {
+        name: 'RSA -> ML-KEM-768 via pqcrypto',
+        nist: 'FIPS 203',
+        deps: ['pqcrypto'],
+        install: 'cargo add pqcrypto',
+        before: `use rsa::{RsaPrivateKey, RsaPublicKey};\nuse rand::rngs::OsRng;\n\nlet mut rng = OsRng;\nlet private_key = RsaPrivateKey::new(&mut rng, 2048)?;`,
+        after: `use pqcrypto::kem::kyber768::*;\n\n// ML-KEM-768 (FIPS 203) - Quantum-Safe KEM\nlet (pk, sk) = keypair();\nlet (ct, ss_enc) = encapsulate(&pk);\nlet ss_dec = decapsulate(&ct, &sk);\nassert_eq!(ss_enc, ss_dec);`,
+      },
+      hybrid: {
+        name: 'RSA + ML-KEM-768 Hybrid',
+        nist: 'FIPS 203',
+        deps: ['pqcrypto', 'rsa'],
+        install: 'cargo add pqcrypto rsa',
+        before: `// Same RSA code`,
+        after: `use rsa::{RsaPrivateKey, RsaPublicKey, Pkcs1v15Encrypt};\nuse pqcrypto::kem::kyber768::*;\nuse sha2::{Sha256, Digest};\n\n// Hybrid: RSA + ML-KEM\nlet rsa_key = RsaPrivateKey::new(&mut OsRng, 2048)?;\nlet (pqc_pk, pqc_sk) = keypair();\n\n// Combine both shared secrets\nlet (pqc_ct, pqc_ss) = encapsulate(&pqc_pk);\nlet rsa_ss = rand::thread_rng().gen::<[u8; 32]>();\nlet combined = Sha256::digest([&rsa_ss[..], pqc_ss.as_ref()].concat());`,
+      },
+    },
+    ECDSA: {
+      pure_pqc: {
+        name: 'ECDSA -> ML-DSA-65 via pqcrypto',
+        nist: 'FIPS 204',
+        deps: ['pqcrypto'],
+        install: 'cargo add pqcrypto',
+        before: `use p256::ecdsa::{SigningKey, Signature, signature::Signer};\n\nlet signing_key = SigningKey::random(&mut OsRng);`,
+        after: `use pqcrypto::sign::dilithium3::*;\n\n// ML-DSA-65 (FIPS 204) - Quantum-Safe Signature\nlet (pk, sk) = keypair();\nlet sig = sign(b"message", &sk);\nassert!(verify(b"message", &sig, &pk).is_ok());`,
+      },
+    },
+  },
+
+  csharp: {
+    RSA: {
+      pure_pqc: {
+        name: 'RSA -> ML-KEM-768 via BouncyCastle',
+        nist: 'FIPS 203',
+        deps: ['BouncyCastle.Cryptography'],
+        install: 'dotnet add package BouncyCastle.Cryptography',
+        before: `using System.Security.Cryptography;\n\nusing var rsa = RSA.Create(2048);\nbyte[] encrypted = rsa.Encrypt(data, RSAEncryptionPadding.OaepSHA256);`,
+        after: `using Org.BouncyCastle.Pqc.Crypto.Crystals.Kyber;\n\n// ML-KEM-768 (FIPS 203) - Quantum-Safe KEM\nvar gen = new KyberKeyPairGenerator();\ngen.Init(new KyberKeyGenerationParameters(new SecureRandom(), KyberParameters.kyber768));\nvar kp = gen.GenerateKeyPair();\n\nvar encapsulator = new KyberKemGenerator(new SecureRandom());\nvar secret = encapsulator.GenerateEncapsulated(kp.Public);\nbyte[] sharedSecret = secret.GetSecret();`,
+      },
+    },
+    MD5: {
+      pure_pqc: {
+        name: 'MD5 -> SHA3-256',
+        nist: 'FIPS 202',
+        deps: [],
+        install: '# .NET 8+ built-in',
+        before: `using var md5 = MD5.Create();\nbyte[] hash = md5.ComputeHash(data);`,
+        after: `using System.Security.Cryptography;\n// SHA3-256: Quantum-resistant (FIPS 202)\nbyte[] hash = SHA3_256.HashData(data);`,
+      },
+    },
+  },
+
+  php: {
+    RSA: {
+      pure_pqc: {
+        name: 'RSA -> ML-KEM via liboqs-php',
+        nist: 'FIPS 203',
+        deps: ['liboqs-php'],
+        install: 'pecl install oqs',
+        before: `$config = ["private_key_bits" => 2048, "private_key_type" => OPENSSL_KEYTYPE_RSA];\n$key = openssl_pkey_new($config);`,
+        after: `// ML-KEM-768 (FIPS 203) via liboqs\n$kem = new OQS\\KeyEncapsulation("ML-KEM-768");\n$pk = $kem->generate_keypair();\n[$ct, $ss] = $kem->encap_secret($pk);`,
+      },
+    },
+    MD5: {
+      pure_pqc: {
+        name: 'MD5 -> SHA3-256',
+        nist: 'FIPS 202',
+        deps: [],
+        install: '# PHP 8.1+ with hash extension',
+        before: `$hash = md5($data);`,
+        after: `// SHA3-256: Quantum-resistant (FIPS 202)\n$hash = hash('sha3-256', $data);`,
+      },
+    },
+  },
 };
 
-// 算法族映射到模板 key
+// Algorithm family -> template key mapping
 const ALGO_TEMPLATE_KEY = {
-  'RSA-1024': 'RSA', 'RSA-2048': 'RSA', 'RSA-3072': 'RSA', 'RSA-4096': 'RSA',
-  'ECDSA-P256': 'ECDSA', 'ECDSA-P384': 'ECDSA',
-  'ECDH': 'RSA', 'DH-2048': 'RSA', 'ElGamal': 'RSA', 'X25519': 'RSA',
-  'DSA': 'ECDSA', 'Ed25519': 'ECDSA',
-  'DES': 'DES', '3DES': 'DES', 'RC4': 'DES', 'Blowfish': 'DES',
-  'MD5': 'MD5', 'SHA-1': 'SHA-1',
-  'AES-128': 'DES',
+  'RSA-1024': 'RSA', 'RSA-2048': 'RSA', 'RSA-3072': 'RSA', 'RSA-4096': 'RSA', 'RSA': 'RSA',
+  'ECDSA-P256': 'ECDSA', 'ECDSA-P384': 'ECDSA', 'ECDSA-P521': 'ECDSA', 'ECDSA': 'ECDSA',
+  'ECDH': 'RSA', 'DH-1024': 'RSA', 'DH-2048': 'RSA', 'ElGamal': 'RSA', 'X25519': 'RSA', 'X448': 'RSA',
+  'DSA': 'ECDSA', 'Ed25519': 'ECDSA', 'Ed448': 'ECDSA',
+  'secp256k1': 'ECDSA',
+  'DES': 'DES', '3DES': 'DES', 'RC4': 'DES', 'RC2': 'DES', 'Blowfish': 'DES', 'IDEA': 'DES', 'CAST5': 'DES',
+  'AES-ECB': 'DES', 'AES-CBC-no-HMAC': 'DES',
+  'MD5': 'MD5', 'MD4': 'MD5', 'SHA-1': 'SHA-1', 'RIPEMD-160': 'MD5', 'SHA-224': 'SHA-1',
+  'AES-128': 'DES', 'AES-192': 'DES',
 };
 
 class MigrationEngine {
@@ -424,27 +502,31 @@ class MigrationEngine {
     return [
       {
         phase: 1, name: '紧急修复', name_en: 'Critical Remediation',
-        description: '修复已被经典计算破解的算法（MD5, SHA-1, DES, RC4, 3DES）',
-        timeline: '1-2 周',
-        items: plans.filter(p => ['MD5', 'SHA-1', 'DES', '3DES', 'RC4', 'Blowfish'].includes(p.finding.algorithm)),
+        description: '修复已被经典计算破解的算法（MD4, MD5, SHA-1, DES, RC4, RC2, 3DES, IDEA, CAST5, AES-ECB）',
+        description_en: 'Fix classically broken algorithms (MD4, MD5, SHA-1, DES, RC4, RC2, 3DES, IDEA, CAST5, AES-ECB)',
+        timeline: '1-2 weeks',
+        items: plans.filter(p => ['MD4', 'MD5', 'SHA-1', 'SHA-224', 'RIPEMD-160', 'DES', '3DES', 'RC4', 'RC2', 'Blowfish', 'IDEA', 'CAST5', 'AES-ECB', 'AES-CBC-no-HMAC'].includes(p.finding.algorithm)),
       },
       {
         phase: 2, name: '量子关键迁移', name_en: 'Quantum-Critical Migration',
-        description: '迁移非对称加密到 PQC 标准（RSA → ML-KEM, ECDSA → ML-DSA）',
-        timeline: '3-6 周',
+        description: '迁移非对称加密到 PQC 标准（RSA → ML-KEM, ECDSA → ML-DSA, DH → ML-KEM）',
+        description_en: 'Migrate asymmetric crypto to PQC standards (RSA → ML-KEM, ECDSA → ML-DSA, DH → ML-KEM)',
+        timeline: '3-6 weeks',
         items: plans.filter(p =>
-          ['RSA-1024', 'RSA-2048', 'RSA-3072', 'RSA-4096', 'ECDSA-P256', 'ECDSA-P384', 'ECDH', 'DSA', 'DH-2048', 'ElGamal'].includes(p.finding.algorithm)),
+          ['RSA-1024', 'RSA-2048', 'RSA-3072', 'RSA-4096', 'ECDSA-P256', 'ECDSA-P384', 'ECDSA-P521', 'ECDH', 'DSA', 'DH-1024', 'DH-2048', 'ElGamal', 'secp256k1'].includes(p.finding.algorithm)),
       },
       {
         phase: 3, name: '混合模式过渡', name_en: 'Hybrid Transition',
-        description: '为现代算法部署混合模式（Ed25519 + ML-DSA, X25519 + ML-KEM）',
-        timeline: '2-3 周',
-        items: plans.filter(p => ['Ed25519', 'X25519', 'AES-128'].includes(p.finding.algorithm)),
+        description: '为现代算法部署混合模式（Ed25519 + ML-DSA, X25519 + ML-KEM, AES-128 → AES-256）',
+        description_en: 'Deploy hybrid mode for modern algorithms (Ed25519 + ML-DSA, X25519 + ML-KEM, AES-128 → AES-256)',
+        timeline: '2-3 weeks',
+        items: plans.filter(p => ['Ed25519', 'Ed448', 'X25519', 'X448', 'AES-128', 'AES-192'].includes(p.finding.algorithm)),
       },
       {
         phase: 4, name: '验证与合规', name_en: 'Validation & Compliance',
-        description: '回归测试、安全审计、CBOM 生成、合规报告',
-        timeline: '1-2 周',
+        description: '回归测试、安全审计、CBOM 生成、合规报告、渗透测试',
+        description_en: 'Regression testing, security audit, CBOM generation, compliance reporting, penetration testing',
+        timeline: '1-2 weeks',
         items: [],
       },
     ];
@@ -483,9 +565,9 @@ class MigrationEngine {
   }
 
   _estimateEffort(finding) {
-    const complex = ['RSA-1024', 'RSA-2048', 'RSA-3072', 'RSA-4096', 'ECDSA-P256', 'ECDSA-P384', 'ECDH', 'DH-2048', 'DSA'];
+    const complex = ['RSA-1024', 'RSA-2048', 'RSA-3072', 'RSA-4096', 'ECDSA-P256', 'ECDSA-P384', 'ECDSA-P521', 'ECDH', 'DH-1024', 'DH-2048', 'DSA', 'secp256k1'];
     if (complex.includes(finding.algorithm)) return 'high';
-    if (['Ed25519', 'X25519', '3DES', 'Blowfish', 'ElGamal'].includes(finding.algorithm)) return 'medium';
+    if (['Ed25519', 'Ed448', 'X25519', 'X448', '3DES', 'Blowfish', 'ElGamal', 'IDEA', 'CAST5', 'AES-128', 'AES-192'].includes(finding.algorithm)) return 'medium';
     return 'low';
   }
 

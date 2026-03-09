@@ -216,6 +216,121 @@ html, body, #root {
 .status-dot--warn { background: var(--qs-medium); box-shadow: 0 0 6px var(--qs-medium); }
 .status-dot--err { background: var(--qs-critical); box-shadow: 0 0 6px var(--qs-critical); animation: statusPulse 1.5s ease-in-out infinite; }
 
+/* ══════════════════════════════════════════════════════════
+   LIGHT MODE FIXES
+   Fix shadow overlap, color conflicts, and visual artifacts
+   when ProLayout renders with light/default theme
+   ══════════════════════════════════════════════════════════ */
+
+/* ─── Remove ProLayout default box-shadow that causes overlap ─── */
+.ant-pro-sider.ant-layout-sider,
+.ant-pro-layout .ant-layout-sider {
+  box-shadow: none !important;
+}
+.ant-pro-layout .ant-layout-header {
+  box-shadow: none !important;
+}
+
+/* ─── Fix sidebar/header overlap — remove double shadow layers ─── */
+.ant-pro-layout .ant-pro-sider .ant-layout-sider-children {
+  box-shadow: none !important;
+}
+.ant-pro-global-header {
+  box-shadow: none !important;
+  border-bottom: 1px solid rgba(108, 92, 231, 0.08);
+}
+
+/* ─── Fix sidebar active button shadow bleeding ─── */
+.ant-pro-base-menu .ant-menu-item-selected,
+.ant-pro-base-menu .ant-menu-item-active,
+.ant-menu-item-selected {
+  box-shadow: none !important;
+}
+.sidebar-menu-item--active {
+  box-shadow: none !important;
+  position: relative;
+  z-index: 1;
+}
+
+/* ─── Fix header badges overlap with header background ─── */
+.header-badges {
+  box-shadow: none !important;
+  position: relative;
+  z-index: 1;
+}
+
+/* ─── Fix action buttons in header — remove overlapping shadows ─── */
+.ant-pro-global-header-actions-avatar,
+.ant-pro-global-header .ant-pro-global-header-header-actions {
+  box-shadow: none !important;
+}
+.ant-pro-global-header .ant-pro-global-header-header-actions > * {
+  box-shadow: none !important;
+}
+
+/* ─── Light mode: when not using realDark (light sidebar) ─── */
+.ant-pro-sider-light,
+.ant-pro-layout .ant-pro-sider-light {
+  box-shadow: none !important;
+  border-right: 1px solid #f0f0f0 !important;
+}
+.ant-pro-sider-light .sidebar-menu-item:hover {
+  background: rgba(108, 92, 231, 0.06);
+}
+.ant-pro-sider-light .sidebar-menu-item--active {
+  background: rgba(108, 92, 231, 0.10) !important;
+  box-shadow: none !important;
+}
+.ant-pro-sider-light .ant-menu-item-selected {
+  box-shadow: none !important;
+  background: rgba(108, 92, 231, 0.08) !important;
+}
+
+/* ─── Light mode header: fix badges & actions contrast ─── */
+.ant-pro-layout:not([class*="dark"]) .header-badges,
+.ant-pro-top-nav-header-light .header-badges {
+  background: rgba(108, 92, 231, 0.06);
+  border: 1px solid rgba(108, 92, 231, 0.12);
+}
+.ant-pro-layout:not([class*="dark"]) .header-badge-text,
+.ant-pro-top-nav-header-light .header-badge-text {
+  color: #666;
+}
+
+/* ─── Prevent ProLayout internal box-shadow stacking ─── */
+.ant-pro-layout .ant-pro-layout-bg-list {
+  box-shadow: none !important;
+}
+.ant-pro-layout .ant-pro-sider-menu-logo {
+  box-shadow: none !important;
+}
+.ant-pro-layout .ant-pro-top-nav-header {
+  box-shadow: none !important;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+/* ─── Fix: ProLayout mix mode header/sider intersection shadow ─── */
+.ant-pro-layout.ant-pro-layout-mix .ant-layout-header {
+  box-shadow: none !important;
+}
+.ant-pro-layout.ant-pro-layout-mix .ant-pro-sider {
+  box-shadow: none !important;
+}
+
+/* ─── Fix sidebar footer in light mode ─── */
+.ant-pro-sider-light .sidebar-footer__divider {
+  background: #e8e8e8;
+}
+.ant-pro-sider-light .sidebar-footer__copy {
+  color: #999;
+}
+
+/* ─── Fix version tag in light mode ─── */
+.ant-pro-top-nav-header-light .ant-tag {
+  border-color: #d9d9d9 !important;
+  color: #888 !important;
+}
+
 @keyframes statusPulse {
   0%, 100% { opacity: 1; } 50% { opacity: 0.4; }
 }
@@ -229,6 +344,7 @@ html, body, #root {
   border-top: 1px solid var(--qs-border);
   backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
   font-size: 10px; color: var(--qs-text-dim);
+  box-shadow: none;
 }
 .desktop-status-bar__left,
 .desktop-status-bar__right { display: flex; align-items: center; gap: 4px; }
