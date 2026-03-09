@@ -1,0 +1,9 @@
+node_modules/
+client/node_modules/
+client/dist/
+.env
+*.log
+.DS_Store
+package-lock.json
+client/package-lock.json
+.github/workflows/build-release.yml
