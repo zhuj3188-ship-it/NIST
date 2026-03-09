@@ -98,10 +98,10 @@ export default function CICDPage() {
   const currentPlatform = PLATFORMS.find(p => p.key === platform);
 
   return (
-    <div style={{ maxWidth: 1400, margin: '0 auto' }}>
+    <div style={{ maxWidth: 1200, margin: '0 auto' }}>
       {/* Header */}
       <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
-        <div style={{ marginBottom: 32 }}>
+        <div style={{ marginBottom: 20 }}>
           <Title level={2} style={{ color: colors.text, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 12 }}>
             <RocketOutlined style={{ color: '#6C5CE7' }} />
             {t('cicd.title')}

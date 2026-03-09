@@ -119,7 +119,7 @@ export default function Compliance({ scanResult, onNavigate }) {
 
   return (
     <motion.div initial="hidden" animate="visible" variants={{ hidden:{}, visible:{ transition:{ staggerChildren:0.08 }} }}
-      style={{ display:'flex', flexDirection:'column', gap:16 }}>
+      style={{ display:'flex', flexDirection:'column', gap:12 }}>
 
       {/* ═══ Scorecard Hero ═══ */}
       <motion.div variants={fadeUp}>

@@ -108,7 +108,7 @@ export default function Scanner({ setScanResult, onNavigate }) {
   const trailColor = isDark ? 'rgba(26,26,66,0.6)' : '#f0f0f5';
 
   return (
-    <motion.div variants={stagger} initial="hidden" animate="visible" style={{ display:'flex', flexDirection:'column', gap:16 }}>
+    <motion.div variants={stagger} initial="hidden" animate="visible" style={{ display:'flex', flexDirection:'column', gap:12 }}>
 
       {/* ═══ Scanner Input ═══ */}
       <motion.div variants={fadeUp}>
@@ -185,7 +185,7 @@ export default function Scanner({ setScanResult, onNavigate }) {
 
           <div style={{ marginTop: loading ? 8 : 16 }}>
             <Button type="primary" size="large" icon={<ThunderboltOutlined />} loading={loading} onClick={handleScan} block
-              className="qs-btn-gradient" style={{ height:50, fontSize:15 }}>
+              className="qs-btn-gradient" style={{ height:42, fontSize:14 }}>
               {loading ? `${t('scan.scanning')} ${Math.round(scanProgress)}%` : t('scan.start')}
             </Button>
           </div>

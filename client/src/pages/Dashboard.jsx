@@ -83,11 +83,11 @@ export default function Dashboard({ onNavigate, setScanResult }) {
   const labelColor = isDark ? '#8888aa' : '#666680';
 
   return (
-    <motion.div variants={stagger} initial="hidden" animate="visible" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+    <motion.div variants={stagger} initial="hidden" animate="visible" style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
 
       {/* ═══ Hero ═══ */}
       <motion.div variants={fadeUp} transition={{ duration: 0.5 }}>
-        <ProCard gutter={[16, 16]} ghost>
+        <ProCard gutter={[12, 12]} ghost>
           <ProCard colSpan={scorecard ? 16 : 24} className="hero-gradient"
             bodyStyle={{ position: 'relative', overflow: 'hidden', zIndex: 1 }}>
             <div style={{ position: 'relative', zIndex: 2 }}>
@@ -95,10 +95,10 @@ export default function Dashboard({ onNavigate, setScanResult }) {
                 <motion.div animate={{ scale: [1, 1.05, 1] }} transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}>
                   <ExperimentOutlined style={{ fontSize: 30, color: '#6C5CE7', filter: 'drop-shadow(0 0 16px rgba(108,92,231,0.5))' }} />
                 </motion.div>
-                <span className="gradient-text" style={{ fontSize: 26, fontWeight: 800, letterSpacing: -0.5 }}>{t('dash.title')}</span>
+                <span className="gradient-text" style={{ fontSize: 22, fontWeight: 800, letterSpacing: -0.5 }}>{t('dash.title')}</span>
                 <Tag style={{ background: 'rgba(108,92,231,0.15)', border: '1px solid rgba(108,92,231,0.4)', color: '#a29bfe', fontSize: 10, fontWeight: 600 }}>Enterprise v2.2</Tag>
               </Space>
-              <Paragraph style={{ color: colors.textSecondary, margin: '6px 0 20px', fontSize: 14, maxWidth: 640, lineHeight: 1.8 }}>
+              <Paragraph style={{ color: colors.textSecondary, margin: '4px 0 14px', fontSize: 13, maxWidth: 600, lineHeight: 1.7 }}>
                 {t('dash.subtitle')}
                 <br />
                 <Text style={{ color: colors.textDim, fontSize: 12 }}>{t('dash.lang_support')}</Text>
@@ -117,17 +117,17 @@ export default function Dashboard({ onNavigate, setScanResult }) {
                 </motion.div>
               )}
 
-              <Space size={12}>
+              <Space size={10}>
                 <Button type="primary" size="large" icon={<ThunderboltOutlined />} loading={loading} onClick={runDemo}
-                  className="qs-btn-gradient" style={{ height: 46, paddingInline: 32, fontSize: 14 }}>
+                  className="qs-btn-gradient" style={{ height: 40, paddingInline: 24, fontSize: 13 }}>
                   {loading ? t('dash.scanning') : t('dash.scan_demo')}
                 </Button>
                 <Button size="large" icon={<ScanOutlined />} onClick={() => onNavigate?.('scanner')}
-                  style={{ height: 46, borderColor: 'rgba(108,92,231,0.4)', color: '#a29bfe', background: 'rgba(108,92,231,0.06)' }}>
+                  style={{ height: 40, borderColor: 'rgba(108,92,231,0.4)', color: '#a29bfe', background: 'rgba(108,92,231,0.06)' }}>
                   {t('dash.scan_my_code')}
                 </Button>
                 <Button size="large" icon={<AuditOutlined />} onClick={() => onNavigate?.('compliance')}
-                  style={{ height: 46, borderColor: isDark ? 'rgba(108,92,231,0.2)' : 'rgba(108,92,231,0.3)', color: colors.textSecondary }}>
+                  style={{ height: 40, borderColor: isDark ? 'rgba(108,92,231,0.2)' : 'rgba(108,92,231,0.3)', color: colors.textSecondary }}>
                   {t('dash.compliance_report')}
                 </Button>
               </Space>
@@ -241,7 +241,7 @@ export default function Dashboard({ onNavigate, setScanResult }) {
 
       {/* ═══ Charts Row ═══ */}
       <motion.div variants={fadeUp}>
-        <ProCard gutter={[16, 16]} ghost wrap>
+        <ProCard gutter={[12, 12]} ghost wrap>
           {riskPieData.length > 0 && (
             <ProCard colSpan={8} title={<><FundOutlined style={{ marginRight: 8, color: '#6C5CE7' }} />{t('dash.risk_dist')}</>}
               className="qs-card" headerBorderless>
@@ -294,7 +294,7 @@ export default function Dashboard({ onNavigate, setScanResult }) {
 
       {/* ═══ Risk Matrix + Business Impact + Timeline ═══ */}
       <motion.div variants={fadeUp}>
-        <ProCard gutter={[16, 16]} ghost wrap>
+        <ProCard gutter={[12, 12]} ghost wrap>
           {matrix && (
             <ProCard colSpan={8} title={<><FundOutlined style={{ marginRight: 8, color: '#6C5CE7' }} />{t('dash.risk_matrix')}</>}
               className="qs-card" headerBorderless>

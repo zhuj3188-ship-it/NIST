@@ -28,9 +28,9 @@
   --qs-text-dim:     #4a4a6e;
   --qs-glass:        rgba(14, 14, 40, 0.65);
   --qs-glass-border: rgba(108, 92, 231, 0.12);
-  --qs-radius:       12px;
-  --qs-radius-sm:    8px;
-  --qs-radius-lg:    16px;
+  --qs-radius:       8px;
+  --qs-radius-sm:    6px;
+  --qs-radius-lg:    12px;
   --qs-shadow:       0 4px 24px rgba(0, 0, 0, 0.4), 0 1px 2px rgba(0, 0, 0, 0.2);
   --qs-shadow-lg:    0 8px 48px rgba(0, 0, 0, 0.5), 0 2px 8px rgba(0, 0, 0, 0.3);
   --qs-shadow-glow:  0 4px 32px var(--qs-accent-glow), 0 0 0 1px rgba(108,92,231,0.15);
@@ -180,24 +180,37 @@ html, body, #root {
 .risk-matrix-cell:hover { transform: scale(1.05); box-shadow: 0 4px 24px rgba(0,0,0,0.4); }
 
 /* ─── Sidebar ─── */
-.ant-pro-sider { border-right: 1px solid var(--qs-border) !important; }
-.ant-layout-sider { background: var(--qs-bg-secondary) !important; }
-.sidebar-menu-item:hover { background: rgba(108,92,231,0.06); }
-[data-theme="dark"] .sidebar-menu-item--active { background: rgba(108,92,231,0.12) !important; }
+.ant-pro-sider { border-right: 1px solid var(--qs-border) !important; box-shadow: none !important; }
+.ant-layout-sider { background: var(--qs-bg-secondary) !important; box-shadow: none !important; }
+
+/* Wrapper div: must be transparent — no background, no border, no visual */
+.sidebar-menu-item {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+}
+.sidebar-menu-item--active {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
 
 /* ─── Sidebar Footer ─── */
-.sidebar-footer { text-align: center; padding: 0 16px 20px; }
-.sidebar-footer__divider { height: 1px; background: var(--qs-border); margin-bottom: 14px; }
-.sidebar-footer__standards { color: var(--qs-accent); font-size: 10px; font-weight: 600; letter-spacing: 0.5px; display: flex; align-items: center; justify-content: center; }
-.sidebar-footer__copy { color: var(--qs-text-dim); font-size: 9px; margin-top: 6px; }
+.sidebar-footer { text-align: center; padding: 0 12px 16px; }
+.sidebar-footer__divider { height: 1px; background: var(--qs-border); margin-bottom: 10px; }
+.sidebar-footer__standards { color: var(--qs-accent); font-size: 9px; font-weight: 600; letter-spacing: 0.5px; display: flex; align-items: center; justify-content: center; }
+.sidebar-footer__copy { color: var(--qs-text-dim); font-size: 8px; margin-top: 4px; }
 
 /* ─── Header ─── */
 .header-badges {
-  display: flex; align-items: center; gap: 6px; margin-left: 16px;
-  padding: 4px 12px; border-radius: 20px;
-  background: rgba(108,92,231,0.04); border: 1px solid rgba(108,92,231,0.08);
+  display: flex; align-items: center; gap: 5px; margin-left: 8px;
+  padding: 0; border-radius: 0;
+  background: transparent; border: none;
 }
-.header-badge-text { color: var(--qs-text-dim); font-size: 10px; font-weight: 500; letter-spacing: 0.5px; }
+.header-badge-text { color: var(--qs-text-dim); font-size: 10px; font-weight: 500; letter-spacing: 0.3px; }
 .header-badge-sep { color: rgba(108,92,231,0.2); font-size: 10px; }
 
 /* ─── App Status Bar (top-right) ─── */
@@ -267,16 +280,74 @@ html, body, #root {
   box-shadow: none !important;
 }
 
-/* ─── Header clean border ─── */
+/* ─── GLOBAL: Kill ALL menu item backgrounds from Ant/ProLayout ─── */
+.ant-pro-sider .ant-menu-item,
+.ant-pro-sider .ant-menu-item-selected,
+.ant-pro-sider .ant-menu-item-active,
+.ant-pro-sider .ant-menu-item:hover,
+.ant-pro-base-menu .ant-menu-item,
+.ant-pro-base-menu .ant-menu-item-selected,
+.ant-pro-base-menu .ant-menu-item-active,
+.ant-pro-base-menu-inline .ant-menu-item,
+.ant-pro-base-menu-inline .ant-menu-item-selected,
+.ant-pro-base-menu-inline .ant-menu-item-active,
+.ant-menu-item-selected,
+.ant-menu-item-active,
+.ant-menu-light .ant-menu-item-selected,
+.ant-menu-light .ant-menu-item-active,
+.ant-menu-light .ant-menu-item:hover {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+/* Kill ProLayout's ::after indicator bar */
+.ant-menu-item-selected::after,
+.ant-menu-item-active::after {
+  display: none !important;
+  border: none !important;
+  opacity: 0 !important;
+}
+
+/* ─── Sidebar menu items: compact sizing ─── */
+.ant-pro-sider .ant-menu-item {
+  margin-block: 1px !important;
+  padding-block: 0 !important;
+  height: 34px !important;
+  line-height: 34px !important;
+  border-radius: 0 !important;
+  border-left: 3px solid transparent;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+/* Dark mode: hover */
+[data-theme="dark"] .ant-pro-sider .ant-menu-item:hover {
+  background: rgba(108,92,231,0.08) !important;
+}
+/* Dark mode: selected */
+[data-theme="dark"] .ant-pro-sider .ant-menu-item-selected {
+  background: rgba(108,92,231,0.14) !important;
+  border-left-color: #6C5CE7 !important;
+}
+
+/* Light mode: hover */
+[data-theme="light"] .ant-pro-sider .ant-menu-item:hover {
+  background: rgba(108,92,231,0.04) !important;
+}
+/* Light mode: selected — SINGLE LAYER, no ghost */
+[data-theme="light"] .ant-pro-sider .ant-menu-item-selected {
+  background: rgba(108,92,231,0.06) !important;
+  border-left-color: #6C5CE7 !important;
+}
+
+/* ─── Header: clean, no shadow ─── */
 .ant-pro-global-header {
   box-shadow: none !important;
 }
-/* Light mode header: clean white + subtle border */
 [data-theme="light"] .ant-pro-global-header,
 [data-theme="light"] .ant-pro-layout .ant-layout-header,
 [data-theme="light"] .ant-pro-layout.ant-pro-layout-mix .ant-layout-header,
 [data-theme="light"] .ant-pro-top-nav-header {
-  border-bottom: 1px solid #e4e4ef !important;
+  border-bottom: 1px solid #e8e8f0 !important;
   background: #fff !important;
   box-shadow: none !important;
 }
@@ -284,7 +355,7 @@ html, body, #root {
   border-bottom: 1px solid rgba(108, 92, 231, 0.08) !important;
 }
 
-/* ─── Sidebar — light mode ─── */
+/* ─── Sidebar: light mode base ─── */
 [data-theme="light"] .ant-pro-sider,
 [data-theme="light"] .ant-layout-sider,
 [data-theme="light"] .ant-pro-sider-light {
@@ -293,129 +364,68 @@ html, body, #root {
   background: #fff !important;
 }
 
-/* ─── Sidebar menu item states ─── */
-/* Kill ALL Ant Design/ProLayout internal selected/active backgrounds */
-.ant-pro-base-menu .ant-menu-item-selected,
-.ant-pro-base-menu .ant-menu-item-active,
-.ant-menu-item-selected,
-.ant-menu-item-active,
-.ant-menu-light .ant-menu-item-selected,
-.ant-menu-light .ant-menu-item-active,
-.ant-pro-base-menu-inline .ant-menu-item-selected,
-.ant-pro-base-menu-inline .ant-menu-item-active {
-  box-shadow: none !important;
-  background: transparent !important;
-}
-.sidebar-menu-item {
-  transition: all 0.2s ease;
-  border-radius: 8px;
-  margin: 2px 0;
-  border-left: 3px solid transparent;
-}
-.sidebar-menu-item--active {
-  box-shadow: none !important;
-  position: relative;
-  z-index: 1;
-}
-
-/* Light mode sidebar items */
-[data-theme="light"] .sidebar-menu-item:hover {
-  background: rgba(108, 92, 231, 0.05) !important;
-}
-[data-theme="light"] .sidebar-menu-item--active {
-  background: rgba(108, 92, 231, 0.07) !important;
-  border-left: 3px solid #6C5CE7 !important;
-  border-radius: 0 8px 8px 0;
-}
-/* Force-kill any ProLayout background on the Ant node INSIDE our wrapper */
-[data-theme="light"] .sidebar-menu-item--active .ant-menu-item-selected,
-[data-theme="light"] .sidebar-menu-item--active .ant-menu-item,
-[data-theme="light"] .sidebar-menu-item--active > * {
-  background: transparent !important;
-  box-shadow: none !important;
-}
-/* Also kill the li-level background that ProLayout sets via token */
-[data-theme="light"] .ant-pro-sider .ant-menu-item-selected {
-  background: transparent !important;
-}
-[data-theme="light"] .ant-pro-sider .ant-menu-item-active {
-  background: transparent !important;
-}
-[data-theme="light"] .ant-pro-sider .ant-menu-item:hover {
-  background: transparent !important;
-}
-/* Kill ProLayout's ::after pseudo-element indicator bar */
-[data-theme="light"] .ant-menu-item-selected::after,
-[data-theme="light"] .ant-menu-item-active::after {
-  display: none !important;
-  border: none !important;
-  opacity: 0 !important;
-}
-
-/* ─── Header badges ─── */
+/* ─── Header badges: plain text, no container ─── */
 .header-badges {
   box-shadow: none !important;
-  position: relative;
-  z-index: 1;
 }
 [data-theme="light"] .header-badges {
   background: transparent !important;
   border: none !important;
   padding: 0 !important;
-  margin: 0 !important;
+  margin-left: 8px !important;
 }
 [data-theme="light"] .header-badge-text {
-  color: #666 !important;
-  font-size: 11px;
+  color: #777 !important;
+  font-size: 10px;
 }
 [data-theme="light"] .header-badge-sep {
   color: #ccc !important;
 }
 
-/* ─── Align header content area with page content area ─── */
+/* ─── Header actions ─── */
 [data-theme="light"] .ant-pro-global-header-header-actions {
   box-shadow: none !important;
 }
 
 /* ─── Sidebar footer light mode ─── */
 [data-theme="light"] .sidebar-footer__divider { background: #e8e8f0; }
-[data-theme="light"] .sidebar-footer__copy { color: #999; }
+[data-theme="light"] .sidebar-footer__copy { color: #aaa; }
 [data-theme="light"] .sidebar-footer__standards { color: #6C5CE7; }
 
 /* ─── Light mode: cards, hero-gradient, glass ─── */
 [data-theme="light"] .hero-gradient {
-  background: linear-gradient(135deg, #f0eeff 0%, #f5f3ff 25%, #ebe8ff 50%, #e8f0ff 100%) !important;
-  border: 1px solid #e0ddf5 !important;
+  background: linear-gradient(135deg, #f2f0ff 0%, #f6f4ff 25%, #edebff 50%, #eaf1ff 100%) !important;
+  border: 1px solid #e2dff5 !important;
 }
 [data-theme="light"] .hero-gradient::before {
-  background: radial-gradient(ellipse at 75% 15%, rgba(108,92,231,0.06) 0%, transparent 55%),
-              radial-gradient(ellipse at 25% 80%, rgba(30,144,255,0.03) 0%, transparent 50%);
+  background: radial-gradient(ellipse at 75% 15%, rgba(108,92,231,0.05) 0%, transparent 55%),
+              radial-gradient(ellipse at 25% 80%, rgba(30,144,255,0.02) 0%, transparent 50%);
 }
 [data-theme="light"] .hero-gradient::after { display: none; }
 
 [data-theme="light"] .glass-card {
-  background: rgba(255, 255, 255, 0.92) !important;
-  border: 1px solid #e4e4ef !important;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.05) !important;
-  backdrop-filter: blur(12px);
+  background: #fff !important;
+  border: 1px solid #e8e8f0 !important;
+  box-shadow: none !important;
+  backdrop-filter: none;
 }
 [data-theme="light"] .glass-card:hover {
-  border-color: rgba(108,92,231,0.2) !important;
-  box-shadow: 0 4px 16px rgba(108,92,231,0.1) !important;
+  border-color: rgba(108,92,231,0.18) !important;
+  box-shadow: 0 2px 8px rgba(108,92,231,0.06) !important;
 }
 
 [data-theme="light"] .metric-card {
   background: #fff !important;
-  border: 1px solid #e4e4ef !important;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.04) !important;
+  border: 1px solid #e8e8f0 !important;
+  box-shadow: none !important;
 }
 [data-theme="light"] .metric-card:hover {
-  box-shadow: 0 4px 16px rgba(108,92,231,0.1) !important;
+  box-shadow: 0 2px 8px rgba(108,92,231,0.06) !important;
 }
 
 [data-theme="light"] .qs-card {
   background: #fff !important;
-  border: 1px solid #e4e4ef !important;
+  border: 1px solid #e8e8f0 !important;
 }
 
 /* ─── Light mode: StatisticCard group (migration/compliance stats bar) ─── */
@@ -431,16 +441,16 @@ html, body, #root {
 
 /* ─── Light mode: ProCard borders ─── */
 [data-theme="light"] .ant-pro-card {
-  border-color: #e4e4ef !important;
+  border-color: #e8e8f0 !important;
 }
 [data-theme="light"] .ant-pro-card-bordered {
-  border: 1px solid #e4e4ef !important;
+  border: 1px solid #e8e8f0 !important;
 }
 
 /* ─── Light mode: Code blocks ─── */
 [data-theme="light"] .code-block {
-  background: #f5f5fa;
-  border: 1px solid #e4e4ef;
+  background: #f8f8fc;
+  border: 1px solid #e8e8f0;
   color: #1a1a2e;
 }
 
@@ -455,16 +465,16 @@ html, body, #root {
 
 /* ─── Light mode: Desktop status bar ─── */
 [data-theme="light"] .desktop-status-bar {
-  background: linear-gradient(180deg, rgba(250,250,255,0.96), rgba(245,245,250,0.98)) !important;
-  border-top: 1px solid #e4e4ef !important;
-  color: #888898;
+  background: #fafafe !important;
+  border-top: 1px solid #e8e8f0 !important;
+  color: #999;
 }
 [data-theme="light"] .desktop-status-bar__sep { color: rgba(0,0,0,0.1); }
 
 /* ─── Light mode: Tables ─── */
 [data-theme="light"] .quantum-table .ant-table-thead > tr > th {
   background: #fafafe !important;
-  border-bottom: 1px solid #e4e4ef !important;
+  border-bottom: 1px solid #e8e8f0 !important;
   color: #666680 !important;
 }
 [data-theme="light"] .quantum-table .ant-table-tbody > tr > td {
@@ -477,7 +487,7 @@ html, body, #root {
 /* ─── Light mode: Notifications ─── */
 [data-theme="light"] .ant-notification-notice {
   background: #fff !important;
-  border: 1px solid #e4e4ef !important;
+  border: 1px solid #e8e8f0 !important;
 }
 [data-theme="light"] .ant-notification-notice-message { color: #1a1a2e !important; }
 [data-theme="light"] .ant-notification-notice-description { color: #555570 !important; }
@@ -551,9 +561,11 @@ html, body, #root {
 /* ─── Light mode: Download platform cards — fix double border/shadow ─── */
 [data-theme="light"] .ant-card-hoverable {
   box-shadow: none !important;
+  border: 1px solid #e8e8f0 !important;
 }
 [data-theme="light"] .ant-card-hoverable:hover {
-  box-shadow: 0 4px 12px rgba(108,92,231,0.08) !important;
+  box-shadow: 0 2px 8px rgba(108,92,231,0.06) !important;
+  border-color: rgba(108,92,231,0.2) !important;
 }
 
 /* ─── Light mode: Glow card (download recommended) ─── */
@@ -561,15 +573,15 @@ html, body, #root {
 
 /* ─── Light mode: Button primary hover shadow ─── */
 [data-theme="light"] .ant-btn-primary:not(:disabled):hover {
-  box-shadow: 0 2px 8px rgba(108,92,231,0.25) !important;
+  box-shadow: 0 2px 6px rgba(108,92,231,0.15) !important;
 }
 
 /* ─── Light mode: Gradient button ─── */
 [data-theme="light"] .qs-btn-gradient {
-  box-shadow: 0 2px 8px rgba(108,92,231,0.2);
+  box-shadow: 0 1px 4px rgba(108,92,231,0.15);
 }
 [data-theme="light"] .qs-btn-gradient:hover {
-  box-shadow: 0 4px 16px rgba(108,92,231,0.3) !important;
+  box-shadow: 0 2px 8px rgba(108,92,231,0.2) !important;
 }
 
 @keyframes statusPulse {
@@ -579,12 +591,12 @@ html, body, #root {
 /* ─── Desktop Bottom Status Bar ─── */
 .desktop-status-bar {
   position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;
-  height: 26px; display: flex; justify-content: space-between; align-items: center;
-  padding: 0 16px;
+  height: 24px; display: flex; justify-content: space-between; align-items: center;
+  padding: 0 12px;
   background: linear-gradient(180deg, rgba(10,10,30,0.95) 0%, rgba(6,6,18,0.98) 100%);
   border-top: 1px solid var(--qs-border);
   backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-  font-size: 10px; color: var(--qs-text-dim);
+  font-size: 9px; color: var(--qs-text-dim);
   box-shadow: none;
 }
 .desktop-status-bar__left,
@@ -592,7 +604,7 @@ html, body, #root {
 .desktop-status-bar__sep { color: rgba(255,255,255,0.08); margin: 0 6px; }
 
 /* ─── ProLayout overrides ─── */
-.ant-pro-layout-content { padding-bottom: 36px !important; }
+.ant-pro-layout-content { padding-bottom: 30px !important; }
 .ant-pro-page-container { background: transparent !important; }
 
 /* ─── StatisticCard Group ─── */
@@ -690,7 +702,7 @@ html, body, #root {
 }
 
 /* ─── Page section ─── */
-.page-section { margin-bottom: 20px; }
+.page-section { margin-bottom: 14px; }
 
 /* ─── Enterprise scan progress bar ─── */
 .scan-progress-bar {
@@ -708,9 +720,9 @@ html, body, #root {
 .diff-viewer-wrapper { border-radius: var(--qs-radius-sm); overflow: hidden; border: 1px solid var(--qs-border); }
 
 /* ─── ProCard dark overrides ─── */
-.ant-pro-card { border-radius: var(--qs-radius) !important; }
-.ant-pro-card-header { padding-bottom: 8px !important; }
-.ant-pro-card-header-title { font-weight: 600 !important; font-size: 14px !important; }
+.ant-pro-card { border-radius: var(--qs-radius-sm) !important; }
+.ant-pro-card-header { padding-bottom: 6px !important; }
+.ant-pro-card-header-title { font-weight: 600 !important; font-size: 13px !important; }
 
 /* ─── Segmented dark ─── */
 .ant-segmented { background: var(--qs-bg-secondary) !important; border-radius: var(--qs-radius-sm) !important; }

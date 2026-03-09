@@ -192,7 +192,7 @@ export default function App() {
                 transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
                 style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
               >
-                <ExperimentOutlined style={{ fontSize: 24, color: '#6C5CE7', filter: 'drop-shadow(0 0 8px rgba(108,92,231,0.6))' }} />
+                <ExperimentOutlined style={{ fontSize: 20, color: '#6C5CE7', filter: 'drop-shadow(0 0 6px rgba(108,92,231,0.5))' }} />
               </motion.div>
             }
             route={proLayoutRoute}
@@ -206,7 +206,7 @@ export default function App() {
             collapsed={collapsed}
             onCollapse={setCollapsed}
             collapsedButtonRender={false}
-            siderWidth={180}
+            siderWidth={148}
             token={layoutToken}
 
             actionsRender={() => [

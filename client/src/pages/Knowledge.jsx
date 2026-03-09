@@ -57,7 +57,7 @@ export default function Knowledge() {
   const chartTheme = isDark ? 'classicDark' : 'classic';
 
   return (
-    <div style={{ display:'flex', flexDirection:'column', gap:16 }}>
+    <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
 
       {/* ═══ Hero ═══ */}
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
