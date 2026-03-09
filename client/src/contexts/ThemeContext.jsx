@@ -57,59 +57,6 @@ const lightTheme = {
   },
 };
 
-/* ─── Layout tokens ─── */
-const darkLayoutToken = {
-  sider: {
-    colorMenuBackground: '#0a0a1e',
-    colorTextMenu: '#6b6b8d',
-    colorTextMenuSelected: '#fff',
-    colorBgMenuItemSelected: 'transparent',
-    colorBgMenuItemHover: 'transparent',
-    colorTextMenuActive: '#a29bfe',
-    colorMenuItemDivider: '#161636',
-    paddingBlockLayoutMenu: 2,
-    paddingInlineLayoutMenu: 4,
-  },
-  header: {
-    colorBgHeader: 'rgba(10,10,30,0.85)',
-    colorTextMenu: '#6b6b8d',
-    colorTextMenuSelected: '#fff',
-    colorBgMenuItemSelected: 'transparent',
-    colorBgMenuItemHover: 'transparent',
-    heightLayoutHeader: 44,
-  },
-  pageContainer: {
-    paddingBlockPageContainerContent: 10,
-    paddingInlinePageContainerContent: 14,
-  },
-};
-
-const lightLayoutToken = {
-  sider: {
-    colorMenuBackground: '#ffffff',
-    colorTextMenu: '#666680',
-    colorTextMenuSelected: '#1a1a2e',
-    colorBgMenuItemSelected: 'transparent',
-    colorBgMenuItemHover: 'transparent',
-    colorTextMenuActive: '#6C5CE7',
-    colorMenuItemDivider: '#f0f0f5',
-    paddingBlockLayoutMenu: 2,
-    paddingInlineLayoutMenu: 4,
-  },
-  header: {
-    colorBgHeader: '#ffffff',
-    colorTextMenu: '#666680',
-    colorTextMenuSelected: '#1a1a2e',
-    colorBgMenuItemSelected: 'transparent',
-    colorBgMenuItemHover: 'transparent',
-    heightLayoutHeader: 44,
-  },
-  pageContainer: {
-    paddingBlockPageContainerContent: 10,
-    paddingInlinePageContainerContent: 14,
-  },
-};
-
 export function ThemeProvider({ children }) {
   const [isDark, setIsDark] = useState(() => {
     try {
@@ -136,7 +83,6 @@ export function ThemeProvider({ children }) {
     isDark,
     toggleTheme,
     themeConfig: isDark ? darkTheme : lightTheme,
-    layoutToken: isDark ? darkLayoutToken : lightLayoutToken,
     // Semantic color helpers for inline styles
     colors: isDark ? {
       bg: '#080818',
